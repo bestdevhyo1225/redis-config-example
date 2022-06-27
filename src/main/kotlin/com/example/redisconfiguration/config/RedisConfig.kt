@@ -54,7 +54,7 @@ class RedisConfig(
 
     private fun lettuceClientConfig(): LettuceClientConfiguration {
         return LettuceClientConfiguration.builder()
-            .clientName("xxx-api")
+            .clientName("test-api")
             .readFrom(REPLICA_PREFERRED)
             .commandTimeout(Duration.ofSeconds(commandTimeout)) // Connection Timeout
             .shutdownTimeout(Duration.ofMillis(shutdownTimeout))
