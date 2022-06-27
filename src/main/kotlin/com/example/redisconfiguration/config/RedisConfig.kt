@@ -1,6 +1,5 @@
 package com.example.redisconfiguration.config
 
-import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom.REPLICA_PREFERRED
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
