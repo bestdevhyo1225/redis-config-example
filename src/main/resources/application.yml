@@ -1,0 +1,43 @@
+server:
+  port: 9000
+  tomcat:
+    threads:
+      min-spare: 20
+      max: 100
+
+spring:
+  profiles:
+    active: redis-standalone
+
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-standalone
+
+  data:
+    redis:
+      mode: standalone
+      nodes: localhost:6379
+      command-timeout: 60000 # 60s
+      shutdown-timeout: 100 # 100ms
+
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-cluster
+
+  data:
+    redis:
+      mode: cluster
+      nodes:
+        localhost:16379,
+        localhost:26379,
+        localhost:36379
+      command-timeout: 60000 # 60s
+      shutdown-timeout: 100 # 100ms
+
+logging:
+  level:
+    org.springframework.data.redis.core.RedisTemplate: debug
