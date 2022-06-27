@@ -22,6 +22,10 @@ spring:
       command-timeout: 60000 # 60s
       shutdown-timeout: 100 # 100ms
 
+logging:
+  level:
+    io.lettuce.core: debug
+
 ---
 spring:
   config:
@@ -40,4 +44,4 @@ spring:
 
 logging:
   level:
-    org.springframework.data.redis.core.RedisTemplate: debug
+    io.lettuce.core: debug
