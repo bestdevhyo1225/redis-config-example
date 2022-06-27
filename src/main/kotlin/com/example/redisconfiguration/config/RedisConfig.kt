@@ -1,5 +1,6 @@
 package com.example.redisconfiguration.config
 
+import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom.REPLICA_PREFERRED
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
@@ -53,6 +54,7 @@ class RedisConfig(
     }
 
     private fun lettuceClientConfig(): LettuceClientConfiguration {
+        // ClientOptions 설정은 디폴트를 따름. -> 디테일한 설정이 필요하면 설정을 변경하자.
         return LettuceClientConfiguration.builder()
             .clientName("test-api")
             .readFrom(REPLICA_PREFERRED)
