@@ -1,9 +1,11 @@
 package com.example.redisconfiguration.service
 
+import com.example.redisconfiguration.config.RedisKey
 import com.example.redisconfiguration.domain.Member
 import com.example.redisconfiguration.repository.MemberRepository
-import com.example.redisconfiguration.service.dto.CreateMemberCacheResult
-import com.example.redisconfiguration.service.dto.FindMemberCacheResult
+import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
+import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
+import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
@@ -12,19 +14,33 @@ class MemberService(
     private val memberRepository: MemberRepository
 ) {
 
-    fun set(id: Long, name: String): CreateMemberCacheResult {
-        val key = "member:${id}"
+    fun set(id: Long, name: String): CreateMemberCacheResultDto {
+        val key = RedisKey.getMemberKey(id = id)
         val value = Member.create(id = id, name = name)
         val expireTime = 60L
         val timeUnit = TimeUnit.SECONDS
+
         memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
-        return CreateMemberCacheResult(memberId = id)
+
+        return CreateMemberCacheResultDto(memberId = id)
     }
 
-    fun get(id: Long): FindMemberCacheResult {
-        val key = "member:${id}"
+    fun setByPipeline(dtos: List<CreateMemberCacheDto>): List<CreateMemberCacheResultDto> {
+        val keysAndValues = dtos.map {
+            Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
+        }
+        val expireTime = 60L
+
+        memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime)
+
+        return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
+    }
+
+    fun get(id: Long): FindMemberCacheResultDto {
+        val key = RedisKey.getMemberKey(id = id)
         val member = memberRepository.get(key = key, clazz = Member::class.java)
             ?: throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
-        return FindMemberCacheResult(name = member.name)
+
+        return FindMemberCacheResultDto(name = member.name)
     }
 }

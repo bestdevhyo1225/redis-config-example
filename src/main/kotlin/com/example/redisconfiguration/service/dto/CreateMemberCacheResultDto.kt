@@ -1,5 +1,5 @@
 package com.example.redisconfiguration.service.dto
 
-data class CreateMemberCacheResult(
+data class CreateMemberCacheResultDto(
     val memberId: Long,
 )

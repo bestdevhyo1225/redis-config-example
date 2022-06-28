@@ -3,6 +3,7 @@ package com.example.redisconfiguration.repository
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.StringRedisSerializer
 import org.springframework.stereotype.Repository
 import java.util.concurrent.TimeUnit
 
@@ -20,14 +21,28 @@ class MemberRepository(
         redisTemplate.expire(key, expireTime, timeUnit)
     }
 
+    fun <T : Any> setByPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long) {
+        redisTemplate.executePipelined { redisConnection ->
+            val stringRedisSerializer = StringRedisSerializer()
+
+            keysAndValues.forEach { keyAndValue ->
+                redisConnection.setEx(
+                    stringRedisSerializer.serialize(keyAndValue.first),
+                    expireTime,
+                    stringRedisSerializer.serialize(jacksonObjectMapper().writeValueAsString(keyAndValue.second))
+                )
+            }
+
+            return@executePipelined null
+        }
+    }
+
     fun <T> get(key: String, clazz: Class<T>): T? {
         val value = redisTemplate.opsForValue().get(key)
 
         logger.debug("Redis get value: {}", value)
 
-        if (value == null || value.isBlank()) {
-            return null
-        }
+        if (value.isNullOrBlank()) return null
 
         return jacksonObjectMapper().readValue(value, clazz)
     }
