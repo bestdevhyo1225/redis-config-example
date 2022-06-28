@@ -77,7 +77,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     val id = 2L
                     val key = RedisKey.getMemberKey(id = id)
                     val value = Member.create(id = id, name = "Kang")
-                    val expireTime = 500L
+                    val expireTime = 100L
                     val timeUnit = TimeUnit.MILLISECONDS
 
                     memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
