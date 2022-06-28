@@ -24,7 +24,6 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("io.kotest.extensions:kotest-extensions-spring:1.1.1")
 	testImplementation("io.kotest:kotest-assertions-core:5.3.1")
 	testImplementation("io.kotest:kotest-assertions-core-jvm:5.3.1")
