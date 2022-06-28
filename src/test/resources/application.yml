@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: test
+
+  data:
+    redis:
+      mode: standalone
+      host: localhost
+      port: 6379
+      command-timeout: 60000 # 60s
+      shutdown-timeout: 100 # 100ms
+
+logging:
+  level:
+    io.lettuce.core: debug
