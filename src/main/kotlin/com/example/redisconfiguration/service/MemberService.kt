@@ -38,14 +38,14 @@ class MemberService(
     }
 
     fun get(id: Long): FindMemberCacheResultDto {
-        try {
+        return try {
             val key = RedisKey.getMemberKey(id = id)
             val member = memberRepository.get(key = key, clazz = Member::class.java)!!
-            return FindMemberCacheResultDto(name = member.name)
+            FindMemberCacheResultDto(name = member.name)
         } catch (exception: NullPointerException) {
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
-            return FindMemberCacheResultDto(name = "fallback")
+            FindMemberCacheResultDto(name = "fallback")
         }
     }
 }
