@@ -6,6 +6,7 @@ import com.example.redisconfiguration.repository.MemberRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
+import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
@@ -43,6 +44,8 @@ class MemberService(
             return FindMemberCacheResultDto(name = member.name)
         } catch (exception: NullPointerException) {
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
+        } catch (exception: RedisConnectionFailureException) {
+            return FindMemberCacheResultDto(name = "fallback")
         }
     }
 }
