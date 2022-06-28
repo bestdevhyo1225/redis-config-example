@@ -7,6 +7,7 @@ import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
 import org.slf4j.LoggerFactory
+import org.springframework.dao.QueryTimeoutException
 import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
@@ -24,7 +25,13 @@ class MemberService(
         val expireTime = 60L
         val timeUnit = TimeUnit.SECONDS
 
-        memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+        try {
+            memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+        }
 
         return CreateMemberCacheResultDto(memberId = id)
     }
@@ -35,7 +42,13 @@ class MemberService(
         }
         val expireTimeSeconds = 60L
 
-        memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+        try {
+            memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+        }
 
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }
@@ -50,7 +63,11 @@ class MemberService(
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
             // 나중에는 RDMBS의 조회 결과로 대체할 것
-            FindMemberCacheResultDto(name = "fallback")
+            FindMemberCacheResultDto(name = "redis connection failure fallback")
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+            // 나중에는 RDMBS의 조회 결과로 대체할 것
+            FindMemberCacheResultDto(name = "query timeout fallback")
         }
     }
 }
