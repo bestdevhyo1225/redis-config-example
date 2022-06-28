@@ -70,6 +70,25 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     value.shouldBeNull()
                 }
             }
+
+            context("캐시가 만료 직전인 경우") {
+                it("null 값을 반환한다.") {
+                    // given
+                    val id = 2L
+                    val key = RedisKey.getMemberKey(id = id)
+                    val value = Member.create(id = id, name = "Kang")
+                    val expireTime = 500L
+                    val timeUnit = TimeUnit.MILLISECONDS
+
+                    memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+
+                    // when
+                    val findValue = memberRepository.get(key = key, clazz = Member::class.java)
+
+                    // then
+                    findValue.shouldBeNull()
+                }
+            }
         }
 
         this.describe("setByPipeline 메소드는") {
