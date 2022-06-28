@@ -17,7 +17,7 @@ class MemberRepository(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
-        logger.debug("set key: {}, value: {}", key, value)
+        logger.info("set key: {}, value: {}", key, value)
 
         redisTemplate.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value))
         redisTemplate.expire(key, expireTime, timeUnit)
@@ -40,22 +40,23 @@ class MemberRepository(
     }
 
     fun <T> get(key: String, clazz: Class<T>): T? {
-        if (isExpiredKey(key = key)) return null
+        if (shouldRefreshKey(key = key)) {
+            logger.info("current key is need refresh")
+            return null
+        }
 
         val value = redisTemplate.opsForValue().get(key)
 
-        logger.debug("get value: {}", value)
-
-        if (value.isNullOrBlank()) return null
+        if (value.isNullOrBlank()) {
+            logger.info("value is null or blank")
+            return null
+        }
 
         return jacksonObjectMapper().readValue(value, clazz)
     }
 
-    private fun isExpiredKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
+    private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
         val remainingExpiryTimeMS: Long = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS)
-
-        logger.debug("remainingExpiryTimeMS: {}", remainingExpiryTimeMS)
-
         return remainingExpiryTimeMS >= 0
             && getExpiryTimeBasedOnPER(remainingExpiryTimeMS = remainingExpiryTimeMS, delta = expireTimeGapMs) <= 0.0f
     }
@@ -71,10 +72,6 @@ class MemberRepository(
      * - ex) beta > 1.0 => 조금 더 적극적으로 재 계산한다.
      * */
     private fun getExpiryTimeBasedOnPER(remainingExpiryTimeMS: Long, delta: Long, beta: Float = 1.0f): Double {
-        val resultExpiryTime = remainingExpiryTimeMS - abs(delta * beta * ln(Math.random()))
-
-        logger.debug("resultExpiryTime: {}", resultExpiryTime)
-
-        return resultExpiryTime
+        return remainingExpiryTimeMS - abs(delta * beta * ln(Math.random()))
     }
 }
