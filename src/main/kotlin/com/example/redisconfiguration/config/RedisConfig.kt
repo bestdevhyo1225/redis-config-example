@@ -55,7 +55,6 @@ class RedisConfig(
     }
 
     private fun lettuceClientConfig(): LettuceClientConfiguration {
-        // ClientOptions 설정은 디폴트를 따름. -> 디테일한 설정이 필요하면 설정을 변경하자.
         return LettuceClientConfiguration.builder()
             .clientName("my-server")
             .clientOptions(clientOptions())
