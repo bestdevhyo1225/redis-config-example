@@ -17,7 +17,7 @@ import java.time.Duration
 
 @Configuration
 @EnableCaching(proxyTargetClass = true)
-@Profile(value = ["redis-standalone","redis-cluster"])
+@Profile(value = ["redis-standalone", "redis-cluster"])
 class RedisConfig(
     @Value("\${spring.data.redis.mode}")
     private val mode: String,
