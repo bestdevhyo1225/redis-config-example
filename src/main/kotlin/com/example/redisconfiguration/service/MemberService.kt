@@ -45,6 +45,7 @@ class MemberService(
         } catch (exception: NullPointerException) {
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
+            // 나중에는 RDMBS의 조회 결과로 대체할 것
             FindMemberCacheResultDto(name = "fallback")
         }
     }
