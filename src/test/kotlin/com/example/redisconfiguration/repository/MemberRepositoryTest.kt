@@ -116,10 +116,10 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     Pair(first = keys[3], second = values[3]),
                     Pair(first = keys[4], second = values[4]),
                 )
-                val expireTime = 60L
+                val expireTimeSeconds = 60L
 
                 // when
-                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime)
+                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
 
                 // then
                 val findValue1 = memberRepository.get(key = keys[0], clazz = Member::class.java)

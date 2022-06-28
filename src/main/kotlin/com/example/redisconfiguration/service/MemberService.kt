@@ -29,9 +29,9 @@ class MemberService(
         val keysAndValues = dtos.map {
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
         }
-        val expireTime = 60L
+        val expireTimeSeconds = 60L
 
-        memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime)
+        memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
 
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }

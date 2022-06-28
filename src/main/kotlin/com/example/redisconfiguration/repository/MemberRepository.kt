@@ -23,14 +23,14 @@ class MemberRepository(
         redisTemplate.expire(key, expireTime, timeUnit)
     }
 
-    fun <T : Any> setByPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long) {
+    fun <T : Any> setByPipeline(keysAndValues: List<Pair<String, T>>, expireTimeSeconds: Long) {
         redisTemplate.executePipelined { redisConnection ->
             val stringRedisSerializer = StringRedisSerializer()
 
             keysAndValues.forEach { keyAndValue ->
                 redisConnection.setEx(
                     stringRedisSerializer.serialize(keyAndValue.first),
-                    expireTime,
+                    expireTimeSeconds,
                     stringRedisSerializer.serialize(jacksonObjectMapper().writeValueAsString(keyAndValue.second))
                 )
             }
