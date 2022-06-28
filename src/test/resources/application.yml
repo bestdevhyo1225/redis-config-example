@@ -5,8 +5,7 @@ spring:
   data:
     redis:
       mode: standalone
-      host: localhost
-      port: 6379
+      nodes: localhost:6379
       command-timeout: 60000 # 60s
       shutdown-timeout: 100 # 100ms
 
