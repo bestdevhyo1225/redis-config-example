@@ -1,6 +1,8 @@
 package com.example.redisconfiguration.config
 
+import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom.REPLICA_PREFERRED
+import io.lettuce.core.TimeoutOptions
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
@@ -56,9 +58,22 @@ class RedisConfig(
         // ClientOptions 설정은 디폴트를 따름. -> 디테일한 설정이 필요하면 설정을 변경하자.
         return LettuceClientConfiguration.builder()
             .clientName("test-api")
+            .clientOptions(clientOptions())
             .readFrom(REPLICA_PREFERRED)
-            .commandTimeout(Duration.ofSeconds(commandTimeout)) // Connection Timeout
             .shutdownTimeout(Duration.ofMillis(shutdownTimeout))
+            .build()
+    }
+
+    private fun clientOptions(): ClientOptions {
+        return ClientOptions.builder()
+            .timeoutOptions(timeoutOptions())
+            .build()
+    }
+
+    private fun timeoutOptions(): TimeoutOptions {
+        return TimeoutOptions.builder()
+            .timeoutCommands()
+            .fixedTimeout(Duration.ofMillis(commandTimeout))
             .build()
     }
 

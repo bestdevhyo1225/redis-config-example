@@ -19,7 +19,7 @@ spring:
     redis:
       mode: standalone
       nodes: localhost:6379
-      command-timeout: 60000 # 60s
+      command-timeout: 1000 # 1000ms
       shutdown-timeout: 100 # 100ms
 
 logging:
