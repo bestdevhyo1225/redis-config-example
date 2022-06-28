@@ -6,6 +6,7 @@ import com.example.redisconfiguration.repository.MemberRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
+import org.slf4j.LoggerFactory
 import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
@@ -14,6 +15,8 @@ import java.util.concurrent.TimeUnit
 class MemberService(
     private val memberRepository: MemberRepository
 ) {
+
+    private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun set(id: Long, name: String): CreateMemberCacheResultDto {
         val key = RedisKey.getMemberKey(id = id)
@@ -45,6 +48,7 @@ class MemberService(
         } catch (exception: NullPointerException) {
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
             // 나중에는 RDMBS의 조회 결과로 대체할 것
             FindMemberCacheResultDto(name = "fallback")
         }
