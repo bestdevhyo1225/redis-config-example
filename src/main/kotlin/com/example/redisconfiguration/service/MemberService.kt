@@ -76,8 +76,9 @@ class MemberService(
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
         return try {
-            val members = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
-            members.filterNotNull().map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+            memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
+                .filterNotNull()
+                .map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
             ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
