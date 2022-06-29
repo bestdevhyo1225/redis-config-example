@@ -97,38 +97,38 @@ class MemberService(
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
-        return try {
+        try {
             val cacheValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
                 .filterNotNull()
 
             if (cacheValues.size == count) {
                 return cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
             }
-
-            val keysAndValues = ids.map {
-                Pair(
-                    first = RedisKey.getMemberKey(id = it),
-                    second = Member.create(id = it, name = "member name retrieved from rdbms")
-                )
-            }
-
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    memberRepository.setByPipeline(
-                        keysAndValues = keysAndValues,
-                        expireTime = RedisExpireTime.MEMBER,
-                        timeUnit = TimeUnit.SECONDS
-                    )
-                }
-            }
-
-            keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
+            return ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            ids.map { FindMemberCacheResultDto(memberId = it, name = "query timeout fallback") }
+            return ids.map { FindMemberCacheResultDto(memberId = it, name = "query timeout fallback") }
         }
+
+        val keysAndValues = ids.map {
+            Pair(
+                first = RedisKey.getMemberKey(id = it),
+                second = Member.create(id = it, name = "member name retrieved from rdbms")
+            )
+        }
+
+        runBlocking {
+            launch(Dispatchers.IO) {
+                memberRepository.setByPipeline(
+                    keysAndValues = keysAndValues,
+                    expireTime = RedisExpireTime.MEMBER,
+                    timeUnit = TimeUnit.SECONDS
+                )
+            }
+        }
+
+        return keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
     }
 }
