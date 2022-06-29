@@ -7,6 +7,9 @@ import com.example.redisconfiguration.repository.MemberRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.dao.QueryTimeoutException
 import org.springframework.data.redis.RedisConnectionFailureException
@@ -60,21 +63,23 @@ class MemberService(
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }
 
-    fun get(id: Long): FindMemberCacheResultDto {
+    fun get(id: Long): FindMemberCacheResultDto = runBlocking {
         val key = RedisKey.getMemberKey(id = id)
 
-        return try {
+        try {
             memberRepository.get(key = key, clazz = Member::class.java)
-                ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                ?.let { return@runBlocking FindMemberCacheResultDto(memberId = it.id, name = it.name) }
 
             val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
-            memberRepository.set(
-                key = key,
-                value = value,
-                expireTime = RedisExpireTime.MEMBER,
-                timeUnit = TimeUnit.SECONDS
-            )
+            launch(Dispatchers.IO) {
+                memberRepository.set(
+                    key = key,
+                    value = value,
+                    expireTime = RedisExpireTime.MEMBER,
+                    timeUnit = TimeUnit.SECONDS
+                )
+            }
 
             FindMemberCacheResultDto(memberId = value.id, name = value.name)
         } catch (exception: RedisConnectionFailureException) {
