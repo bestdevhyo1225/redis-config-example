@@ -54,7 +54,8 @@ class MemberRepository(
         redisTemplate.executePipelined {
             runBlocking {
                 results.addAll(
-                    keys.map { key -> async(Dispatchers.IO) { get(key = key, clazz = clazz) } }.awaitAll()
+                    keys.map { key -> async(Dispatchers.IO) { get(key = key, clazz = clazz) } }
+                        .awaitAll()
                 )
             }
             return@executePipelined null
