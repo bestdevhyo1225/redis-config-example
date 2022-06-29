@@ -57,15 +57,15 @@ class MemberService(
         return try {
             val key = RedisKey.getMemberKey(id = id)
             val member = memberRepository.get(key = key, clazz = Member::class.java)!!
-            FindMemberCacheResultDto(name = member.name)
+            FindMemberCacheResultDto(memberId = member.id, name = member.name)
         } catch (exception: NullPointerException) {
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(name = "redis connection failure fallback")
+            FindMemberCacheResultDto(memberId = 0, name = "redis connection failure fallback")
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(name = "query timeout fallback")
+            FindMemberCacheResultDto(memberId = 0, name = "query timeout fallback")
         }
     }
 
@@ -74,13 +74,13 @@ class MemberService(
         return try {
             val keys = ids.map { RedisKey.getMemberKey(id = it) }
             val members = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
-            members.filterNotNull().map { FindMemberCacheResultDto(name = it.name) }
+            members.filterNotNull().map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            listOf(FindMemberCacheResultDto(name = "redis connection failure fallback"))
+            ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            listOf(FindMemberCacheResultDto(name = "query timeout fallback"))
+            ids.map { FindMemberCacheResultDto(memberId = it, name = "query timeout fallback") }
         }
     }
 }
