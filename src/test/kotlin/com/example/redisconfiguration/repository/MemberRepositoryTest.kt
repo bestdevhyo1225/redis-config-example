@@ -117,10 +117,11 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     Pair(first = keys[3], second = values[3]),
                     Pair(first = keys[4], second = values[4]),
                 )
-                val expireTimeSeconds = 60L
+                val expireTime = 60L
+                val timeUnit = TimeUnit.SECONDS
 
                 // when
-                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // then
                 val findValue1 = memberRepository.get(key = keys[0], clazz = Member::class.java)
@@ -172,9 +173,10 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     Pair(first = keys[3], second = values[3]),
                     Pair(first = keys[4], second = values[4]),
                 )
-                val expireTimeSeconds = 60L
+                val expireTime = 60L
+                val timeUnit = TimeUnit.SECONDS
 
-                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // when
                 val findValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)

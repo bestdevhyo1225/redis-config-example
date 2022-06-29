@@ -40,10 +40,11 @@ class MemberService(
         val keysAndValues = dtos.map {
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
         }
-        val expireTimeSeconds = 60L
+        val expireTime = 60L
+        val timeUnit = TimeUnit.SECONDS
 
         try {
-            memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+            memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
         } catch (exception: QueryTimeoutException) {
