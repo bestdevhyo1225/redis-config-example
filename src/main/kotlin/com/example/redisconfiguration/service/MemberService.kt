@@ -66,31 +66,31 @@ class MemberService(
     fun get(id: Long): FindMemberCacheResultDto {
         val key = RedisKey.getMemberKey(id = id)
 
-        return try {
+        try {
             memberRepository.get(key = key, clazz = Member::class.java)
                 ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
-
-            val value = Member.create(id = id, name = "member name retrieved from rdbms")
-
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    memberRepository.set(
-                        key = key,
-                        value = value,
-                        expireTime = RedisExpireTime.MEMBER,
-                        timeUnit = TimeUnit.SECONDS
-                    )
-                }
-            }
-
-            FindMemberCacheResultDto(memberId = value.id, name = value.name)
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
+            return FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(memberId = id, name = "query timeout fallback")
+            return FindMemberCacheResultDto(memberId = id, name = "query timeout fallback")
         }
+
+        val value = Member.create(id = id, name = "member name retrieved from rdbms")
+
+        runBlocking {
+            launch(Dispatchers.IO) {
+                memberRepository.set(
+                    key = key,
+                    value = value,
+                    expireTime = RedisExpireTime.MEMBER,
+                    timeUnit = TimeUnit.SECONDS
+                )
+            }
+        }
+
+        return FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
 
     fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
