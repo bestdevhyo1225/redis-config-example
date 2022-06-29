@@ -1,6 +1,10 @@
 package com.example.redisconfiguration.repository
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
@@ -48,7 +52,11 @@ class MemberRepository(
         val results = mutableListOf<T?>()
 
         redisTemplate.executePipelined {
-            keys.forEach { key -> results.add(get(key = key, clazz = clazz)) }
+            runBlocking {
+                results.addAll(
+                    keys.map { async(Dispatchers.IO) { get(key = it, clazz = clazz) } }.awaitAll()
+                )
+            }
             return@executePipelined null
         }
 
