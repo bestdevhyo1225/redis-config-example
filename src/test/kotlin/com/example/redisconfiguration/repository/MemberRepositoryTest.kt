@@ -1,7 +1,7 @@
 package com.example.redisconfiguration.repository
 
-import com.example.redisconfiguration.config.RedisConfig
 import com.example.redisconfiguration.config.RedisKey
+import com.example.redisconfiguration.config.TestRedisConfig
 import com.example.redisconfiguration.domain.Member
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.IsolationMode
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 
 @DataRedisTest
 @EnableAutoConfiguration
-@ContextConfiguration(classes = [RedisConfig::class, MemberRepository::class])
+@ContextConfiguration(classes = [TestRedisConfig::class, MemberRepository::class])
 internal class MemberRepositoryTest : DescribeSpec() {
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
