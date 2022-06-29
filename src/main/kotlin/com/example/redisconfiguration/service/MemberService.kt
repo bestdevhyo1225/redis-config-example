@@ -64,10 +64,10 @@ class MemberService(
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(memberId = 0, name = "redis connection failure fallback")
+            FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            FindMemberCacheResultDto(memberId = 0, name = "query timeout fallback")
+            FindMemberCacheResultDto(memberId = id, name = "query timeout fallback")
         }
     }
 
