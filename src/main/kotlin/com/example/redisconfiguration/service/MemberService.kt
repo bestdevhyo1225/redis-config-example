@@ -55,8 +55,9 @@ class MemberService(
     }
 
     fun get(id: Long): FindMemberCacheResultDto {
+        val key = RedisKey.getMemberKey(id = id)
+
         return try {
-            val key = RedisKey.getMemberKey(id = id)
             val member = memberRepository.get(key = key, clazz = Member::class.java)!!
             FindMemberCacheResultDto(memberId = member.id, name = member.name)
         } catch (exception: NullPointerException) {
@@ -72,8 +73,9 @@ class MemberService(
 
     fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
+        val keys = ids.map { RedisKey.getMemberKey(id = it) }
+
         return try {
-            val keys = ids.map { RedisKey.getMemberKey(id = it) }
             val members = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
             members.filterNotNull().map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
         } catch (exception: RedisConnectionFailureException) {
