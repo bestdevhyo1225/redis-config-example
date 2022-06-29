@@ -62,12 +62,25 @@ class MemberService(
             throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            // 나중에는 RDMBS의 조회 결과로 대체할 것
             FindMemberCacheResultDto(name = "redis connection failure fallback")
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            // 나중에는 RDMBS의 조회 결과로 대체할 것
             FindMemberCacheResultDto(name = "query timeout fallback")
+        }
+    }
+
+    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
+        val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
+        return try {
+            val keys = ids.map { RedisKey.getMemberKey(id = it) }
+            val members = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
+            members.filterNotNull().map { FindMemberCacheResultDto(name = it.name) }
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+            listOf(FindMemberCacheResultDto(name = "redis connection failure fallback"))
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+            listOf(FindMemberCacheResultDto(name = "query timeout fallback"))
         }
     }
 }
