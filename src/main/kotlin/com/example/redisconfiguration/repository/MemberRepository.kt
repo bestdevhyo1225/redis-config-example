@@ -53,6 +53,17 @@ class MemberRepository(
         return jacksonObjectMapper().readValue(value, clazz)
     }
 
+    fun <T> getByPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
+        val results = mutableListOf<T?>()
+
+        redisTemplate.executePipelined {
+            keys.forEach { key -> results.add(get(key = key, clazz = clazz)) }
+            return@executePipelined null
+        }
+
+        return results
+    }
+
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
         val remainingExpiryTimeMS: Long = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS)
         return remainingExpiryTimeMS >= 0
