@@ -17,8 +17,7 @@ class MemberRepository(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
-        redisTemplate.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value))
-        redisTemplate.expire(key, expireTime, timeUnit)
+        redisTemplate.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
     }
 
     fun <T : Any> setByPipeline(keysAndValues: List<Pair<String, T>>, expireTimeSeconds: Long) {
