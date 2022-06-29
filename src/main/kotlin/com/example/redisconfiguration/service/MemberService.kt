@@ -91,16 +91,16 @@ class MemberService(
         }
     }
 
-    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
+    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> = runBlocking {
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
-        return try {
+        try {
             val cacheValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
                 .filterNotNull()
 
             if (cacheValues.size == count) {
-                return cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                return@runBlocking cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
             }
 
             val keysAndValues = ids.map {
@@ -110,11 +110,13 @@ class MemberService(
                 )
             }
 
-            memberRepository.setByPipeline(
-                keysAndValues = keysAndValues,
-                expireTime = RedisExpireTime.MEMBER,
-                timeUnit = TimeUnit.SECONDS
-            )
+            launch(Dispatchers.IO) {
+                memberRepository.setByPipeline(
+                    keysAndValues = keysAndValues,
+                    expireTime = RedisExpireTime.MEMBER,
+                    timeUnit = TimeUnit.SECONDS
+                )
+            }
 
             keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
         } catch (exception: RedisConnectionFailureException) {
