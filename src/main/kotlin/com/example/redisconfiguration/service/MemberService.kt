@@ -1,5 +1,6 @@
 package com.example.redisconfiguration.service
 
+import com.example.redisconfiguration.config.RedisExpireTime
 import com.example.redisconfiguration.config.RedisKey
 import com.example.redisconfiguration.domain.Member
 import com.example.redisconfiguration.repository.MemberRepository
@@ -22,11 +23,14 @@ class MemberService(
     fun set(id: Long, name: String): CreateMemberCacheResultDto {
         val key = RedisKey.getMemberKey(id = id)
         val value = Member.create(id = id, name = name)
-        val expireTime = 60L
-        val timeUnit = TimeUnit.SECONDS
 
         try {
-            memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+            memberRepository.set(
+                key = key,
+                value = value,
+                expireTime = RedisExpireTime.MEMBER,
+                timeUnit = TimeUnit.SECONDS
+            )
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
         } catch (exception: QueryTimeoutException) {
@@ -40,11 +44,13 @@ class MemberService(
         val keysAndValues = dtos.map {
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
         }
-        val expireTime = 60L
-        val timeUnit = TimeUnit.SECONDS
 
         try {
-            memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
+            memberRepository.setByPipeline(
+                keysAndValues = keysAndValues,
+                expireTime = RedisExpireTime.MEMBER,
+                timeUnit = TimeUnit.SECONDS
+            )
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
         } catch (exception: QueryTimeoutException) {
@@ -58,10 +64,19 @@ class MemberService(
         val key = RedisKey.getMemberKey(id = id)
 
         return try {
-            val member = memberRepository.get(key = key, clazz = Member::class.java)!!
-            FindMemberCacheResultDto(memberId = member.id, name = member.name)
-        } catch (exception: NullPointerException) {
-            throw NoSuchElementException("해당 회원이 존재하지 않습니다.")
+            memberRepository.get(key = key, clazz = Member::class.java)
+                ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+
+            val value = Member.create(id = id, name = "member name retrieved from rdbms")
+
+            memberRepository.set(
+                key = key,
+                value = value,
+                expireTime = RedisExpireTime.MEMBER,
+                timeUnit = TimeUnit.SECONDS
+            )
+
+            FindMemberCacheResultDto(memberId = value.id, name = value.name)
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
             FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
