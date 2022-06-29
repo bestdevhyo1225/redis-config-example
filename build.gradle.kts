@@ -30,6 +30,14 @@ dependencies {
 	testImplementation("io.kotest:kotest-extensions-spring:4.4.3")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:5.3.1")
 	testImplementation("io.mockk:mockk:1.12.4")
+	testImplementation("it.ozimov:embedded-redis:0.7.3") {
+		// Exception in thread "main"
+		// java.lang.IllegalArgumentException: LoggerFactory is not a Logback LoggerContext but Logback is on the classpath.
+		// 위의 예외가 발생하지 않도록 slf4j-simple 모듈을 제외한다.
+		exclude("org.slf4j", "slf4j-simple")
+	}
+	testImplementation("com.google.guava:guava:31.1-jre")
+	testImplementation("commons-io:commons-io:2.11.0")
 }
 
 tasks.withType<KotlinCompile> {
