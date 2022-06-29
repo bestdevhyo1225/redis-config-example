@@ -7,6 +7,7 @@ import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -143,6 +144,43 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 findValue5.shouldNotBeNull()
                 findValue5.id.shouldBe(values[4].id)
                 findValue5.name.shouldBe(values[4].name)
+            }
+        }
+
+        this.describe("getByPipeline 메소드는") {
+            it("여러개의 key에 해당되는 value 리스트를 반환한다.") {
+                // given
+                val ids = listOf(1L, 2L, 3L, 4L, 5L)
+                val keys = listOf(
+                    RedisKey.getMemberKey(id = ids[0]),
+                    RedisKey.getMemberKey(id = ids[1]),
+                    RedisKey.getMemberKey(id = ids[2]),
+                    RedisKey.getMemberKey(id = ids[3]),
+                    RedisKey.getMemberKey(id = ids[4]),
+                )
+                val values = listOf(
+                    Member.create(id = ids[0], name = "a"),
+                    Member.create(id = ids[1], name = "b"),
+                    Member.create(id = ids[2], name = "c"),
+                    Member.create(id = ids[3], name = "d"),
+                    Member.create(id = ids[4], name = "e"),
+                )
+                val keysAndValues = listOf(
+                    Pair(first = keys[0], second = values[0]),
+                    Pair(first = keys[1], second = values[1]),
+                    Pair(first = keys[2], second = values[2]),
+                    Pair(first = keys[3], second = values[3]),
+                    Pair(first = keys[4], second = values[4]),
+                )
+                val expireTimeSeconds = 60L
+
+                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTimeSeconds = expireTimeSeconds)
+
+                // when
+                val findValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
+
+                // then
+                findValues.shouldHaveSize(values.size)
             }
         }
     }
