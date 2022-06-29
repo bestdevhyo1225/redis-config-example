@@ -63,22 +63,24 @@ class MemberService(
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }
 
-    fun get(id: Long): FindMemberCacheResultDto = runBlocking {
+    fun get(id: Long): FindMemberCacheResultDto {
         val key = RedisKey.getMemberKey(id = id)
 
-        try {
+        return try {
             memberRepository.get(key = key, clazz = Member::class.java)
-                ?.let { return@runBlocking FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
 
             val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
-            launch(Dispatchers.IO) {
-                memberRepository.set(
-                    key = key,
-                    value = value,
-                    expireTime = RedisExpireTime.MEMBER,
-                    timeUnit = TimeUnit.SECONDS
-                )
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    memberRepository.set(
+                        key = key,
+                        value = value,
+                        expireTime = RedisExpireTime.MEMBER,
+                        timeUnit = TimeUnit.SECONDS
+                    )
+                }
             }
 
             FindMemberCacheResultDto(memberId = value.id, name = value.name)
@@ -91,16 +93,16 @@ class MemberService(
         }
     }
 
-    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> = runBlocking {
+    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
-        try {
+        return try {
             val cacheValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
                 .filterNotNull()
 
             if (cacheValues.size == count) {
-                return@runBlocking cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                return cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
             }
 
             val keysAndValues = ids.map {
@@ -110,12 +112,14 @@ class MemberService(
                 )
             }
 
-            launch(Dispatchers.IO) {
-                memberRepository.setByPipeline(
-                    keysAndValues = keysAndValues,
-                    expireTime = RedisExpireTime.MEMBER,
-                    timeUnit = TimeUnit.SECONDS
-                )
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    memberRepository.setByPipeline(
+                        keysAndValues = keysAndValues,
+                        expireTime = RedisExpireTime.MEMBER,
+                        timeUnit = TimeUnit.SECONDS
+                    )
+                }
             }
 
             keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
