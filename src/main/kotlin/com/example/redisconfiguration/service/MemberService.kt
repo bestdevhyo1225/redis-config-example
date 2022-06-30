@@ -7,6 +7,7 @@ import com.example.redisconfiguration.repository.MemberRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -79,7 +80,7 @@ class MemberService(
 
         val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
-        launch(Dispatchers.IO) { setMemberCache(key = key, value = value) }
+        launch(context = Dispatchers.IO) { setMemberCache(key = key, value = value) }
 
         FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
@@ -110,7 +111,7 @@ class MemberService(
             )
         }
 
-        launch(Dispatchers.IO) { setMemberCaches(keysAndValues = keysAndValues) }
+        launch(context = Dispatchers.IO) { setMemberCaches(keysAndValues = keysAndValues) }
 
         keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
     }
