@@ -54,8 +54,9 @@ class MemberRepository(
         redisTemplate.executePipelined {
             runBlocking {
                 results.addAll(
-                    keys.map { key -> async(context = Dispatchers.IO) { get(key = key, clazz = clazz) } }
-                        .awaitAll()
+                    keys.map { key ->
+                        async(context = Dispatchers.IO) { getWithCoroutineContext(key = key, clazz = clazz) }
+                    }.awaitAll()
                 )
             }
             return@executePipelined null
@@ -63,6 +64,8 @@ class MemberRepository(
 
         return results
     }
+
+    suspend fun <T> getWithCoroutineContext(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
         val remainingExpiryTimeMS: Long = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS)
