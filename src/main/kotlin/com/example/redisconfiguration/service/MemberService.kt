@@ -64,25 +64,27 @@ class MemberService(
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }
 
-    fun get(id: Long): FindMemberCacheResultDto = runBlocking {
+    fun get(id: Long): FindMemberCacheResultDto {
         val key = RedisKey.getMemberKey(id = id)
 
         try {
             memberRepository.get(key = key, clazz = Member::class.java)
-                ?.let { return@runBlocking FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            return@runBlocking FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
+            return FindMemberCacheResultDto(memberId = id, name = "redis connection failure fallback")
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            return@runBlocking FindMemberCacheResultDto(memberId = id, name = "query timeout fallback")
+            return FindMemberCacheResultDto(memberId = id, name = "query timeout fallback")
         }
 
         val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
-        launch(context = Dispatchers.IO) { setMemberCache(key = key, value = value) }
+        runBlocking {
+            launch(context = Dispatchers.IO) { setMemberCache(key = key, value = value) }
+        }
 
-        FindMemberCacheResultDto(memberId = value.id, name = value.name)
+        return FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
 
     fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> = runBlocking {
