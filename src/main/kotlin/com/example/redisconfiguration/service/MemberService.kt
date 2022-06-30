@@ -87,7 +87,7 @@ class MemberService(
         return FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
 
-    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> = runBlocking {
+    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
@@ -96,14 +96,14 @@ class MemberService(
                 .filterNotNull()
 
             if (cacheValues.size == count) {
-                return@runBlocking cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
+                return cacheValues.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
             }
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
-            return@runBlocking ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
+            return ids.map { FindMemberCacheResultDto(memberId = it, name = "redis connection failure fallback") }
         } catch (exception: QueryTimeoutException) {
             logger.error("exception", exception)
-            return@runBlocking ids.map { FindMemberCacheResultDto(memberId = it, name = "query timeout fallback") }
+            return ids.map { FindMemberCacheResultDto(memberId = it, name = "query timeout fallback") }
         }
 
         val keysAndValues = ids.map {
@@ -113,9 +113,11 @@ class MemberService(
             )
         }
 
-        launch(context = Dispatchers.IO) { setMemberCaches(keysAndValues = keysAndValues) }
+        runBlocking {
+            launch(context = Dispatchers.IO) { setMemberCaches(keysAndValues = keysAndValues) }
+        }
 
-        keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
+        return keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
     }
 
     suspend fun <T : Any> setMemberCache(key: String, value: T) {
