@@ -113,7 +113,7 @@ class MemberService(
         }
 
         runBlocking {
-            launch(context = Dispatchers.IO) { setMemberCaches(keysAndValues = keysAndValues) }
+            launch(context = Dispatchers.IO) { setMemberCachesUsingCoroutine(keysAndValues = keysAndValues) }
         }
 
         return keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
@@ -123,7 +123,7 @@ class MemberService(
         memberRepository.set(key = key, value = value, expireTime = RedisExpireTime.MEMBER, timeUnit = TimeUnit.SECONDS)
     }
 
-    suspend fun <T : Any> setMemberCaches(keysAndValues: List<Pair<String, T>>) {
+    suspend fun <T : Any> setMemberCachesUsingCoroutine(keysAndValues: List<Pair<String, T>>) {
         memberRepository.setUsingPipeline(
             keysAndValues = keysAndValues,
             expireTime = RedisExpireTime.MEMBER,
