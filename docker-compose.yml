@@ -1,10 +1,18 @@
 version: '3.8'
 
 services:
-  spring-redis-config-example:
+  my-redis-server-1:
     image: redis
-    container_name: spring-redis-config-example
+    container_name: my-redis-server-1
     command: redis-server --port 6379
     ports:
       - '6379:6379'
+    restart: always
+
+  my-redis-server-2:
+    image: redis
+    container_name: my-redis-server-2
+    command: redis-server --port 6380
+    ports:
+      - '6380:6380'
     restart: always
