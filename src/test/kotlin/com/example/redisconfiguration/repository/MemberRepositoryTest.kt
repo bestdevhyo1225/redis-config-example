@@ -121,7 +121,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 val timeUnit = TimeUnit.SECONDS
 
                 // when
-                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
+                memberRepository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // then
                 val findValue1 = memberRepository.get(key = keys[0], clazz = Member::class.java)
@@ -176,7 +176,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 val expireTime = 60L
                 val timeUnit = TimeUnit.SECONDS
 
-                memberRepository.setByPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
+                memberRepository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // when
                 val findValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)

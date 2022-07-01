@@ -49,7 +49,7 @@ class MemberService(
         }
 
         try {
-            memberRepository.setByPipeline(
+            memberRepository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
@@ -124,7 +124,7 @@ class MemberService(
     }
 
     suspend fun <T : Any> setMemberCaches(keysAndValues: List<Pair<String, T>>) {
-        memberRepository.setByPipeline(
+        memberRepository.setUsingPipeline(
             keysAndValues = keysAndValues,
             expireTime = RedisExpireTime.MEMBER,
             timeUnit = TimeUnit.SECONDS
