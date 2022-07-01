@@ -80,7 +80,7 @@ class MemberService(
         val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
         runBlocking {
-            launch(context = Dispatchers.IO) { setMemberCache(key = key, value = value) }
+            launch(context = Dispatchers.IO) { setUsingCoroutine(key = key, value = value) }
         }
 
         return FindMemberCacheResultDto(memberId = value.id, name = value.name)
@@ -119,7 +119,7 @@ class MemberService(
         return keysAndValues.map { FindMemberCacheResultDto(memberId = it.second.id, name = it.second.name) }
     }
 
-    suspend fun <T : Any> setMemberCache(key: String, value: T) {
+    suspend fun <T : Any> setUsingCoroutine(key: String, value: T) {
         memberRepository.set(key = key, value = value, expireTime = RedisExpireTime.MEMBER, timeUnit = TimeUnit.SECONDS)
     }
 
