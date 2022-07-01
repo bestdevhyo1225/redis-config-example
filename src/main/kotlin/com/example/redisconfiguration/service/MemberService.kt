@@ -86,7 +86,7 @@ class MemberService(
         return FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
 
-    fun getByPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
+    fun getUsingPipeline(start: Int, count: Int): List<FindMemberCacheResultDto> {
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 

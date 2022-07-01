@@ -41,11 +41,11 @@ class MemberController(
     }
 
     @GetMapping
-    fun getByPipeline(
+    fun getUsingPipeline(
         @RequestParam(value = "start") start: Int,
         @RequestParam(value = "count") count: Int
     ): ResponseEntity<SuccessResponse<List<FindMemberCacheResultDto>>> {
-        val findMemberCacheResultDtos = memberService.getByPipeline(start = start, count = count)
+        val findMemberCacheResultDtos = memberService.getUsingPipeline(start = start, count = count)
         return ResponseEntity.ok(SuccessResponse(data = findMemberCacheResultDtos))
     }
 }
