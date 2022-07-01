@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
 import java.util.concurrent.TimeUnit
@@ -14,17 +15,22 @@ import kotlin.math.ln
 
 @Repository
 class MemberRepository(
-    private val redisTemplate: RedisTemplate<String, String?>
+    @Qualifier(value = "redisServer1Template")
+    private val redisServer1Template: RedisTemplate<String, String?>,
+
+    @Qualifier(value = "redisServer2Template")
+    private val redisServer2Template: RedisTemplate<String, String?>
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
-        redisTemplate.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
+        redisServer1Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
+        redisServer2Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
     }
 
     fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
-        redisTemplate.executePipelined {
+        redisServer1Template.executePipelined {
             keysAndValues.forEach { keyAndValue ->
                 set(key = keyAndValue.first, value = keyAndValue.second, expireTime = expireTime, timeUnit = timeUnit)
             }
@@ -38,7 +44,7 @@ class MemberRepository(
             return null
         }
 
-        val value = redisTemplate.opsForValue().get(key)
+        val value = redisServer1Template.opsForValue().get(key)
 
         if (value.isNullOrBlank()) {
             logger.info("value is null or blank")
@@ -51,7 +57,7 @@ class MemberRepository(
     fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
         val results = mutableListOf<T?>()
 
-        redisTemplate.executePipelined {
+        redisServer1Template.executePipelined {
             runBlocking {
                 results.addAll(
                     keys.map { key ->
@@ -68,7 +74,7 @@ class MemberRepository(
     suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
-        val remainingExpiryTimeMS: Long = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS)
+        val remainingExpiryTimeMS: Long = redisServer1Template.getExpire(key, TimeUnit.MILLISECONDS)
         return remainingExpiryTimeMS >= 0
             && getExpiryTimeBasedOnPER(remainingExpiryTimeMS = remainingExpiryTimeMS, delta = expireTimeGapMs) <= 0.0f
     }
