@@ -48,7 +48,7 @@ class MemberRepository(
         return jacksonObjectMapper().readValue(value, clazz)
     }
 
-    fun <T> getByPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
+    fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
         val results = mutableListOf<T?>()
 
         redisTemplate.executePipelined {

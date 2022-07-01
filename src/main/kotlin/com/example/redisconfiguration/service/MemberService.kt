@@ -91,7 +91,7 @@ class MemberService(
         val keys = ids.map { RedisKey.getMemberKey(id = it) }
 
         try {
-            val cacheValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
+            val cacheValues = memberRepository.getUsingPipeline(keys = keys, clazz = Member::class.java)
                 .filterNotNull()
 
             if (cacheValues.size == count) {

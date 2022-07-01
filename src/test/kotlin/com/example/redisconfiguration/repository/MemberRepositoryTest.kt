@@ -179,7 +179,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 memberRepository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // when
-                val findValues = memberRepository.getByPipeline(keys = keys, clazz = Member::class.java)
+                val findValues = memberRepository.getUsingPipeline(keys = keys, clazz = Member::class.java)
 
                 // then
                 findValues.shouldHaveSize(values.size)
