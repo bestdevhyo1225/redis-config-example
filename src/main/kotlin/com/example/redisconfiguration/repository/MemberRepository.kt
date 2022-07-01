@@ -55,7 +55,7 @@ class MemberRepository(
             runBlocking {
                 results.addAll(
                     keys.map { key ->
-                        async(context = Dispatchers.IO) { getFromCoroutineContext(key = key, clazz = clazz) }
+                        async(context = Dispatchers.IO) { getUsingCoroutine(key = key, clazz = clazz) }
                     }.awaitAll()
                 )
             }
@@ -65,7 +65,7 @@ class MemberRepository(
         return results
     }
 
-    suspend fun <T> getFromCoroutineContext(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
+    suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
         val remainingExpiryTimeMS: Long = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS)
