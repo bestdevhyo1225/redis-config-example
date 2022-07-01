@@ -26,7 +26,7 @@ class MemberController(
 
     @PostMapping("/bulk")
     @ResponseStatus(HttpStatus.CREATED)
-    fun setByPipeline(
+    fun setUsingPipeline(
         @RequestBody request: CreateMemberCachesRequest
     ): ResponseEntity<SuccessResponse<List<CreateMemberCacheResultDto>>> {
         val dtos = request.members.map { CreateMemberCacheDto(id = it.id, name = it.name) }
