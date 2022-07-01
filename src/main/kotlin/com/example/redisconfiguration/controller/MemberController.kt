@@ -30,7 +30,7 @@ class MemberController(
         @RequestBody request: CreateMemberCachesRequest
     ): ResponseEntity<SuccessResponse<List<CreateMemberCacheResultDto>>> {
         val dtos = request.members.map { CreateMemberCacheDto(id = it.id, name = it.name) }
-        val createMemberCacheResults = memberService.setByPipeline(dtos = dtos)
+        val createMemberCacheResults = memberService.setUsingPipeline(dtos = dtos)
         return ResponseEntity.ok(SuccessResponse(data = createMemberCacheResults))
     }
 

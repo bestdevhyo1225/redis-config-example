@@ -43,7 +43,7 @@ class MemberService(
         return CreateMemberCacheResultDto(memberId = id)
     }
 
-    fun setByPipeline(dtos: List<CreateMemberCacheDto>): List<CreateMemberCacheResultDto> {
+    fun setUsingPipeline(dtos: List<CreateMemberCacheDto>): List<CreateMemberCacheResultDto> {
         val keysAndValues = dtos.map {
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
         }
