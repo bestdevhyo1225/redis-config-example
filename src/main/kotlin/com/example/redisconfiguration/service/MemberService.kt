@@ -1,7 +1,7 @@
 package com.example.redisconfiguration.service
 
 import com.example.redisconfiguration.domain.Member
-import com.example.redisconfiguration.repository.MemberFacadeRepository
+import com.example.redisconfiguration.repository.MemberFacadeRedisRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import com.example.redisconfiguration.service.dto.CreateMemberCacheResultDto
 import com.example.redisconfiguration.service.dto.FindMemberCacheResultDto
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class MemberService(
-    private val memberFacadeRepository: MemberFacadeRepository
+    private val memberFacadeRedisRepository: MemberFacadeRedisRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -20,7 +20,7 @@ class MemberService(
 
         val value = Member.create(id = id, name = name)
 
-        memberFacadeRepository.setMemberCache(value = value)
+        memberFacadeRedisRepository.setMemberCache(value = value)
 
         return CreateMemberCacheResultDto(memberId = id)
     }
@@ -30,7 +30,7 @@ class MemberService(
 
         val values = dtos.map { Member.create(id = it.id, name = it.name) }
 
-        memberFacadeRepository.setMembersCache(values = values)
+        memberFacadeRedisRepository.setMembersCache(values = values)
 
         return dtos.map { CreateMemberCacheResultDto(memberId = it.id) }
     }
@@ -38,12 +38,12 @@ class MemberService(
     fun get(id: Long): FindMemberCacheResultDto {
         logger.info("get() start")
 
-        memberFacadeRepository.getMemberCache(id = id)
+        memberFacadeRedisRepository.getMemberCache(id = id)
             ?.let { return FindMemberCacheResultDto(memberId = it.id, name = it.name) }
 
         val value = Member.create(id = id, name = "member name retrieved from rdbms")
 
-        memberFacadeRepository.setMemberCache(value = value)
+        memberFacadeRedisRepository.setMemberCache(value = value)
 
         return FindMemberCacheResultDto(memberId = value.id, name = value.name)
     }
@@ -53,7 +53,7 @@ class MemberService(
 
         val ids = (1..100).map { it.toLong() }.slice(start until (start + count))
 
-        val cacheValues = memberFacadeRepository.getMembersCache(ids = ids)
+        val cacheValues = memberFacadeRedisRepository.getMembersCache(ids = ids)
             .filterNotNull()
 
         if (cacheValues.size == count) {
@@ -62,7 +62,7 @@ class MemberService(
 
         val values = ids.map { Member.create(id = it, name = "member name retrieved from rdbms") }
 
-        memberFacadeRepository.setMembersCache(values = values)
+        memberFacadeRedisRepository.setMembersCache(values = values)
 
         return values.map { FindMemberCacheResultDto(memberId = it.id, name = it.name) }
     }

@@ -2,7 +2,7 @@ package com.example.redisconfiguration.repository
 
 import com.example.redisconfiguration.domain.Member
 
-interface MemberFacadeRepository {
+interface MemberFacadeRedisRepository {
     fun setMemberCache(value: Member)
     fun setMembersCache(values: List<Member>)
     fun getMemberCache(id: Long): Member?

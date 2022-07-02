@@ -18,7 +18,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
     val mockMemberRedisServer1Repository = mockk<MemberRedisServer1Repository>()
     val mockMemberRedisServer2Repository = mockk<MemberRedisServer2Repository>()
     val mockMemberRedisServer3Repository = mockk<MemberRedisServer3Repository>()
-    val memberRepositoryFacadeImpl = MemberRepositoryFacadeImpl(
+    val memberFacadeRedisRepositoryImpl = MemberFacadeRedisRepositoryImpl(
         redisServerCount = mockRedisServerCount,
         memberRedisServer1Repository = mockMemberRedisServer1Repository,
         memberRedisServer2Repository = mockMemberRedisServer2Repository,
@@ -57,7 +57,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 )
             }
 
-            memberRepositoryFacadeImpl.setMemberCache(value = value)
+            memberFacadeRedisRepositoryImpl.setMemberCache(value = value)
         }
 
         context("1번 Redis Server가 장애로 인해 RedisConnectionFailureException 예외를 던지는 경우") {
@@ -89,7 +89,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 }
 
                 // when
-                memberRepositoryFacadeImpl.setMemberCache(value = value)
+                memberFacadeRedisRepositoryImpl.setMemberCache(value = value)
 
                 // then
                 verify {
@@ -132,7 +132,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 }
 
                 // when
-                memberRepositoryFacadeImpl.setMemberCache(value = value)
+                memberFacadeRedisRepositoryImpl.setMemberCache(value = value)
 
                 // then
                 verify {
@@ -178,7 +178,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 )
             }
 
-            memberRepositoryFacadeImpl.setMembersCache(values = values)
+            memberFacadeRedisRepositoryImpl.setMembersCache(values = values)
         }
 
         context("1, 2번 Redis Server가 장애로 인해 RedisConnectionFailureException 예외를 던지는 경우") {
@@ -207,7 +207,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 }
 
                 // when
-                memberRepositoryFacadeImpl.setMembersCache(values = values)
+                memberFacadeRedisRepositoryImpl.setMembersCache(values = values)
 
                 // then
                 verify {
@@ -246,7 +246,7 @@ internal class MemberFacadeRepositoryTests : DescribeSpec({
                 }.throws(QueryTimeoutException("QueryTimeoutException"))
 
                 // when
-                memberRepositoryFacadeImpl.setMembersCache(values = values)
+                memberFacadeRedisRepositoryImpl.setMembersCache(values = values)
 
                 // then
                 verify {

@@ -1,7 +1,7 @@
 package com.example.redisconfiguration.service
 
 import com.example.redisconfiguration.domain.Member
-import com.example.redisconfiguration.repository.MemberFacadeRepository
+import com.example.redisconfiguration.repository.MemberFacadeRedisRepository
 import com.example.redisconfiguration.service.dto.CreateMemberCacheDto
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
@@ -11,8 +11,8 @@ import io.mockk.verify
 
 internal class MemberServiceTests : DescribeSpec({
 
-    val mockMemberFacadeRepository = mockk<MemberFacadeRepository>()
-    val memberService = MemberService(memberFacadeRepository = mockMemberFacadeRepository)
+    val mockMemberFacadeRedisRepository = mockk<MemberFacadeRedisRepository>()
+    val memberService = MemberService(memberFacadeRedisRepository = mockMemberFacadeRedisRepository)
 
     describe("set 메소드는") {
         val id = 1L
@@ -20,7 +20,7 @@ internal class MemberServiceTests : DescribeSpec({
         val value = Member.create(id = id, name = name)
 
         it("Member 캐시를 저장한다.") {
-            justRun { mockMemberFacadeRepository.setMemberCache(value = value) }
+            justRun { mockMemberFacadeRedisRepository.setMemberCache(value = value) }
 
             memberService.set(id = id, name = name)
         }
@@ -34,7 +34,7 @@ internal class MemberServiceTests : DescribeSpec({
         val values = dtos.map { Member.create(id = it.id, name = it.name) }
 
         it("Members 캐시를 저장한다.") {
-            justRun { mockMemberFacadeRepository.setMembersCache(values = values) }
+            justRun { mockMemberFacadeRedisRepository.setMembersCache(values = values) }
 
             memberService.setUsingPipeline(dtos = dtos)
         }
@@ -47,14 +47,14 @@ internal class MemberServiceTests : DescribeSpec({
             it("Member 캐시를 반환한다.") {
                 // given
                 every {
-                    mockMemberFacadeRepository.getMemberCache(id = id)
+                    mockMemberFacadeRedisRepository.getMemberCache(id = id)
                 }.returns(Member.create(id = id, name = "KimDongSu"))
 
                 // when
                 memberService.get(id = id)
 
                 // then
-                verify { mockMemberFacadeRepository.getMemberCache(id = id) }
+                verify { mockMemberFacadeRedisRepository.getMemberCache(id = id) }
             }
         }
 
@@ -64,15 +64,15 @@ internal class MemberServiceTests : DescribeSpec({
             it("Member 캐시를 저장한 후, Member 캐시를 반환한다.") {
                 // given
                 every {
-                    mockMemberFacadeRepository.getMemberCache(id = id)
+                    mockMemberFacadeRedisRepository.getMemberCache(id = id)
                 }.returns(null)
-                justRun { mockMemberFacadeRepository.setMemberCache(value = value) }
+                justRun { mockMemberFacadeRedisRepository.setMemberCache(value = value) }
 
                 // when
                 memberService.get(id = id)
 
                 // then
-                verify { mockMemberFacadeRepository.getMemberCache(id = id) }
+                verify { mockMemberFacadeRedisRepository.getMemberCache(id = id) }
             }
         }
     }
@@ -86,14 +86,14 @@ internal class MemberServiceTests : DescribeSpec({
             it("Member 캐시를 반환한다.") {
                 // given
                 every {
-                    mockMemberFacadeRepository.getMembersCache(ids = ids)
+                    mockMemberFacadeRedisRepository.getMembersCache(ids = ids)
                 }.returns(ids.map { Member.create(id = it, name = "KimDongSu") })
 
                 // when
                 memberService.getUsingPipeline(start = start, count = count)
 
                 // then
-                verify { mockMemberFacadeRepository.getMembersCache(ids = ids) }
+                verify { mockMemberFacadeRedisRepository.getMembersCache(ids = ids) }
             }
         }
 
@@ -103,16 +103,16 @@ internal class MemberServiceTests : DescribeSpec({
             it("Member 캐시를 저장한 후, Member 캐시를 반환한다.") {
                 // given
                 every {
-                    mockMemberFacadeRepository.getMembersCache(ids = ids)
+                    mockMemberFacadeRedisRepository.getMembersCache(ids = ids)
                 }.returns(listOf(Member.create(id = ids.first(), name = "KimDongSu")))
 
-                justRun { mockMemberFacadeRepository.setMembersCache(values = values) }
+                justRun { mockMemberFacadeRedisRepository.setMembersCache(values = values) }
 
                 // when
                 memberService.getUsingPipeline(start = start, count = count)
 
                 // then
-                verify { mockMemberFacadeRepository.getMembersCache(ids = ids) }
+                verify { mockMemberFacadeRedisRepository.getMembersCache(ids = ids) }
             }
         }
     }

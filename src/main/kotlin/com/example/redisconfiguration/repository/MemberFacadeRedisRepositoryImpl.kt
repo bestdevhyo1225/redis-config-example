@@ -14,13 +14,13 @@ import org.springframework.stereotype.Repository
 import java.util.concurrent.TimeUnit
 
 @Repository
-class MemberRepositoryFacadeImpl(
+class MemberFacadeRedisRepositoryImpl(
     @Qualifier(value = "redisServerCount")
     private val redisServerCount: Int,
     private val memberRedisServer1Repository: MemberRedisServer1Repository,
     private val memberRedisServer2Repository: MemberRedisServer2Repository,
     private val memberRedisServer3Repository: MemberRedisServer3Repository,
-) : MemberFacadeRepository {
+) : MemberFacadeRedisRepository {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
     private val minRedisServerCount = 1
