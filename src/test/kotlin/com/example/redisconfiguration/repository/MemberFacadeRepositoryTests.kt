@@ -4,7 +4,6 @@ import com.example.redisconfiguration.config.RedisExpireTime
 import com.example.redisconfiguration.config.RedisKey
 import com.example.redisconfiguration.domain.Member
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
@@ -13,7 +12,7 @@ import org.springframework.dao.QueryTimeoutException
 import org.springframework.data.redis.RedisConnectionFailureException
 import java.util.concurrent.TimeUnit
 
-internal class MemberFacadeRepositoryTest : DescribeSpec({
+internal class MemberFacadeRepositoryTests : DescribeSpec({
 
     val mockRedisServerCount = 3
     val mockMemberRedisServer1Repository = mockk<MemberRedisServer1Repository>()

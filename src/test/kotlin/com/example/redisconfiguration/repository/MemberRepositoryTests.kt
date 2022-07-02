@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 @DataRedisTest
 @EnableAutoConfiguration
 @ContextConfiguration(classes = [TestRedisConfig::class, MemberRedisServer1Repository::class])
-internal class MemberRepositoryTest : DescribeSpec() {
+internal class MemberRepositoryTests : DescribeSpec() {
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
     override fun isolationMode(): IsolationMode = IsolationMode.InstancePerLeaf
