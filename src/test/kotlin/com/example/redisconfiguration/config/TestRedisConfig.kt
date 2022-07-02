@@ -55,8 +55,8 @@ class TestRedisConfig(
         return LettuceConnectionFactory(RedisStandaloneConfiguration(host, port))
     }
 
-    @Bean
-    fun redisTemplate(): RedisTemplate<String, String?> {
+    @Bean(name = ["redisServer1Template"])
+    fun redisServer1Template(): RedisTemplate<String, String?> {
         val stringRedisSerializer = StringRedisSerializer()
         val redisTemplate = RedisTemplate<String, String?>()
         redisTemplate.setConnectionFactory(redisConnectionFactory())

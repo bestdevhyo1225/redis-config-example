@@ -12,6 +12,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest
 import org.springframework.data.redis.core.RedisTemplate
@@ -30,6 +31,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
     private lateinit var memberRepository: MemberRepository
 
     @Autowired
+    @Qualifier(value = "redisServer1Template")
     private lateinit var redisTemplate: RedisTemplate<String, String?>
 
     init {
