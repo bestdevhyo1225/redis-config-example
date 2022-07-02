@@ -21,14 +21,14 @@ import java.util.concurrent.TimeUnit
 
 @DataRedisTest
 @EnableAutoConfiguration
-@ContextConfiguration(classes = [TestRedisConfig::class, MemberRepository::class])
+@ContextConfiguration(classes = [TestRedisConfig::class, MemberRedisServer1Repository::class])
 internal class MemberRepositoryTest : DescribeSpec() {
 
     override fun extensions(): List<Extension> = listOf(SpringExtension)
     override fun isolationMode(): IsolationMode = IsolationMode.InstancePerLeaf
 
     @Autowired
-    private lateinit var memberRepository: MemberRepository
+    private lateinit var memberRedisServer1Repository: MemberRedisServer1Repository
 
     @Autowired
     @Qualifier(value = "redisServer1Template")
@@ -49,10 +49,10 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 val timeUnit = TimeUnit.SECONDS
 
                 // when
-                memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+                memberRedisServer1Repository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
 
                 // then
-                val findValue = memberRepository.get(key = key, clazz = Member::class.java)
+                val findValue = memberRedisServer1Repository.get(key = key, clazz = Member::class.java)
 
                 findValue.shouldNotBeNull()
                 findValue.id.shouldBe(value.id)
@@ -67,7 +67,7 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     val key = RedisKey.getMemberKey(id = 1L)
 
                     // when
-                    val value = memberRepository.get(key = key, clazz = Member::class.java)
+                    val value = memberRedisServer1Repository.get(key = key, clazz = Member::class.java)
 
                     // then
                     value.shouldBeNull()
@@ -83,10 +83,10 @@ internal class MemberRepositoryTest : DescribeSpec() {
                     val expireTime = 100L
                     val timeUnit = TimeUnit.MILLISECONDS
 
-                    memberRepository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
+                    memberRedisServer1Repository.set(key = key, value = value, expireTime = expireTime, timeUnit = timeUnit)
 
                     // when
-                    val findValue = memberRepository.get(key = key, clazz = Member::class.java)
+                    val findValue = memberRedisServer1Repository.get(key = key, clazz = Member::class.java)
 
                     // then
                     findValue.shouldBeNull()
@@ -123,14 +123,14 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 val timeUnit = TimeUnit.SECONDS
 
                 // when
-                memberRepository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
+                memberRedisServer1Repository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // then
-                val findValue1 = memberRepository.get(key = keys[0], clazz = Member::class.java)
-                val findValue2 = memberRepository.get(key = keys[1], clazz = Member::class.java)
-                val findValue3 = memberRepository.get(key = keys[2], clazz = Member::class.java)
-                val findValue4 = memberRepository.get(key = keys[3], clazz = Member::class.java)
-                val findValue5 = memberRepository.get(key = keys[4], clazz = Member::class.java)
+                val findValue1 = memberRedisServer1Repository.get(key = keys[0], clazz = Member::class.java)
+                val findValue2 = memberRedisServer1Repository.get(key = keys[1], clazz = Member::class.java)
+                val findValue3 = memberRedisServer1Repository.get(key = keys[2], clazz = Member::class.java)
+                val findValue4 = memberRedisServer1Repository.get(key = keys[3], clazz = Member::class.java)
+                val findValue5 = memberRedisServer1Repository.get(key = keys[4], clazz = Member::class.java)
 
                 findValue1.shouldNotBeNull()
                 findValue1.id.shouldBe(values[0].id)
@@ -178,10 +178,10 @@ internal class MemberRepositoryTest : DescribeSpec() {
                 val expireTime = 60L
                 val timeUnit = TimeUnit.SECONDS
 
-                memberRepository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
+                memberRedisServer1Repository.setUsingPipeline(keysAndValues = keysAndValues, expireTime = expireTime, timeUnit = timeUnit)
 
                 // when
-                val findValues = memberRepository.getUsingPipeline(keys = keys, clazz = Member::class.java)
+                val findValues = memberRedisServer1Repository.getUsingPipeline(keys = keys, clazz = Member::class.java)
 
                 // then
                 findValues.shouldHaveSize(values.size)
