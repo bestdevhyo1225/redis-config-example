@@ -18,7 +18,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import java.time.Duration
 
 @Configuration
-@Profile(value = ["redis-standalone"])
+@Profile(value = ["test", "redis-standalone"])
 @EnableConfigurationProperties(value = [RedisServers::class])
 @EnableCaching(proxyTargetClass = true)
 class RedisConfig(
