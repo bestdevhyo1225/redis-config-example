@@ -1,13 +1,15 @@
-package com.example.redisconfiguration.config
+package com.example.redisconfiguration.config.standalone
 
+import com.example.redisconfiguration.config.RedisTemplateCommon
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.serializer.StringRedisSerializer
 
 @Configuration
+@Profile(value = ["test", "redis-standalone"])
 class RedisTemplateConfig {
 
     @Bean(name = ["redisServer1Template"])
@@ -15,7 +17,7 @@ class RedisTemplateConfig {
         @Qualifier(value = "redisServer1ConnectionFactory")
         redisConnectionFactory: RedisConnectionFactory
     ): RedisTemplate<String, String?> {
-        return redisTemplate(redisConnectionFactory = redisConnectionFactory)
+        return RedisTemplateCommon.redisTemplate(redisConnectionFactory = redisConnectionFactory)
     }
 
     @Bean(name = ["redisServer2Template"])
@@ -23,7 +25,7 @@ class RedisTemplateConfig {
         @Qualifier(value = "redisServer2ConnectionFactory")
         redisConnectionFactory: RedisConnectionFactory
     ): RedisTemplate<String, String?> {
-        return redisTemplate(redisConnectionFactory = redisConnectionFactory)
+        return RedisTemplateCommon.redisTemplate(redisConnectionFactory = redisConnectionFactory)
     }
 
     @Bean(name = ["redisServer3Template"])
@@ -31,17 +33,6 @@ class RedisTemplateConfig {
         @Qualifier(value = "redisServer3ConnectionFactory")
         redisConnectionFactory: RedisConnectionFactory
     ): RedisTemplate<String, String?> {
-        return redisTemplate(redisConnectionFactory = redisConnectionFactory)
-    }
-
-    private fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<String, String?> {
-        val stringRedisSerializer = StringRedisSerializer()
-        val redisTemplate = RedisTemplate<String, String?>()
-        redisTemplate.setConnectionFactory(redisConnectionFactory)
-        redisTemplate.keySerializer = stringRedisSerializer
-        redisTemplate.valueSerializer = stringRedisSerializer
-        redisTemplate.hashKeySerializer = stringRedisSerializer
-        redisTemplate.hashValueSerializer = stringRedisSerializer
-        return redisTemplate
+        return RedisTemplateCommon.redisTemplate(redisConnectionFactory = redisConnectionFactory)
     }
 }

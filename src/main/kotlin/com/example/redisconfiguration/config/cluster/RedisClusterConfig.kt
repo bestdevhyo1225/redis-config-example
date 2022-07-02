@@ -1,5 +1,7 @@
-package com.example.redisconfiguration.config
+package com.example.redisconfiguration.config.cluster
 
+import com.example.redisconfiguration.config.RedisMode
+import com.example.redisconfiguration.config.RedisNodesKey
 import com.example.redisconfiguration.config.property.RedisServers
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom
@@ -36,14 +38,17 @@ class RedisClusterConfig(
     @Bean(name = ["redisServer1ConnectionFactory"])
     fun redisServer1ConnectionFactory(): RedisConnectionFactory {
         if (mode == RedisMode.CLUSTER) {
-            return LettuceConnectionFactory(clusterConfig(), lettuceClientConfig())
+            return LettuceConnectionFactory(
+                clusterConfig(nodes = redisServers.nodes[RedisNodesKey.SERVER_1]!!),
+                lettuceClientConfig()
+            )
         }
 
         throw IllegalArgumentException("'$mode'는 존재하지 않는 모드입니다.")
     }
 
-    private fun clusterConfig(): RedisClusterConfiguration {
-        return RedisClusterConfiguration(redisServers.nodes[RedisNodesKey.SERVER_1]!!)
+    private fun clusterConfig(nodes: List<String>): RedisClusterConfiguration {
+        return RedisClusterConfiguration(nodes)
     }
 
     private fun lettuceClientConfig(): LettuceClientConfiguration {

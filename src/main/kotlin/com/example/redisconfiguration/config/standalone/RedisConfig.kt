@@ -1,5 +1,7 @@
-package com.example.redisconfiguration.config
+package com.example.redisconfiguration.config.standalone
 
+import com.example.redisconfiguration.config.RedisMode
+import com.example.redisconfiguration.config.RedisNodesKey
 import com.example.redisconfiguration.config.property.RedisServers
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom.REPLICA_PREFERRED

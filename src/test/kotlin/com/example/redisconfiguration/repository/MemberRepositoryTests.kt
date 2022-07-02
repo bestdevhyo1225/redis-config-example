@@ -1,8 +1,8 @@
 package com.example.redisconfiguration.repository
 
-import com.example.redisconfiguration.config.RedisConfig
+import com.example.redisconfiguration.config.standalone.RedisConfig
 import com.example.redisconfiguration.config.RedisKey
-import com.example.redisconfiguration.config.RedisTemplateConfig
+import com.example.redisconfiguration.config.standalone.RedisTemplateConfig
 import com.example.redisconfiguration.domain.Member
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.IsolationMode
