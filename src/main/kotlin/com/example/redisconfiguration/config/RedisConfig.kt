@@ -39,10 +39,8 @@ class RedisConfig(
     fun redisServer1ConnectionFactory(): RedisConnectionFactory {
         if (mode == RedisMode.STANDALONE) {
             val splitNodes = redisServers.nodes[RedisNodesKey.SERVER_1]!!.first().split(":")
-            return LettuceConnectionFactory(
-                standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt()),
-                lettuceClientConfig()
-            )
+            val redisStandaloneConfig = standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt())
+            return LettuceConnectionFactory(redisStandaloneConfig, lettuceClientConfig())
         }
 
         throw IllegalArgumentException("'$mode'는 존재하지 않는 모드입니다.")
@@ -52,10 +50,19 @@ class RedisConfig(
     fun redisServer2ConnectionFactory(): RedisConnectionFactory {
         if (mode == RedisMode.STANDALONE) {
             val splitNodes = redisServers.nodes[RedisNodesKey.SERVER_2]!!.first().split(":")
-            return LettuceConnectionFactory(
-                standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt()),
-                lettuceClientConfig()
-            )
+            val redisStandaloneConfig = standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt())
+            return LettuceConnectionFactory(redisStandaloneConfig, lettuceClientConfig())
+        }
+
+        throw IllegalArgumentException("'$mode'는 존재하지 않는 모드입니다.")
+    }
+
+    @Bean(name = ["redisServer3ConnectionFactory"])
+    fun redisServer3ConnectionFactory(): RedisConnectionFactory {
+        if (mode == RedisMode.STANDALONE) {
+            val splitNodes = redisServers.nodes[RedisNodesKey.SERVER_3]!!.first().split(":")
+            val redisStandaloneConfig = standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt())
+            return LettuceConnectionFactory(redisStandaloneConfig, lettuceClientConfig())
         }
 
         throw IllegalArgumentException("'$mode'는 존재하지 않는 모드입니다.")

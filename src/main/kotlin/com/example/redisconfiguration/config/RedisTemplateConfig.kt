@@ -26,6 +26,14 @@ class RedisTemplateConfig {
         return redisTemplate(redisConnectionFactory = redisConnectionFactory)
     }
 
+    @Bean(name = ["redisServer3Template"])
+    fun redisServer3Template(
+        @Qualifier(value = "redisServer3ConnectionFactory")
+        redisConnectionFactory: RedisConnectionFactory
+    ): RedisTemplate<String, String?> {
+        return redisTemplate(redisConnectionFactory = redisConnectionFactory)
+    }
+
     private fun redisTemplate(redisConnectionFactory: RedisConnectionFactory): RedisTemplate<String, String?> {
         val stringRedisSerializer = StringRedisSerializer()
         val redisTemplate = RedisTemplate<String, String?>()
