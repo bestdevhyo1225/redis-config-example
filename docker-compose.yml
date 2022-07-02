@@ -16,3 +16,11 @@ services:
     ports:
       - '6380:6380'
     restart: always
+
+  my-redis-server-3:
+    image: redis
+    container_name: my-redis-server-3
+    command: redis-server --port 6381
+    ports:
+      - '6381:6381'
+    restart: always
