@@ -17,16 +17,12 @@ import kotlin.math.ln
 class MemberRepository(
     @Qualifier(value = "redisServer1Template")
     private val redisServer1Template: RedisTemplate<String, String?>,
-
-    @Qualifier(value = "redisServer2Template")
-    private val redisServer2Template: RedisTemplate<String, String?>
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
         redisServer1Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
-        redisServer2Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
     }
 
     fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
@@ -74,19 +70,7 @@ class MemberRepository(
     suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
-        var remainingExpiryTimeMS: Long = -1
-        val nodeNumber = getNodeByRandomGenerator()
-
-        logger.info("nodeNumber: {}", nodeNumber)
-
-        when (nodeNumber) {
-            0 -> {
-                remainingExpiryTimeMS = redisServer1Template.getExpire(key, TimeUnit.MILLISECONDS)
-            }
-            1 -> {
-                remainingExpiryTimeMS = redisServer2Template.getExpire(key, TimeUnit.MILLISECONDS)
-            }
-        }
+        val remainingExpiryTimeMS = redisServer1Template.getExpire(key, TimeUnit.MILLISECONDS)
 
         return remainingExpiryTimeMS >= 0
             && getExpiryTimeBasedOnPER(remainingExpiryTimeMS = remainingExpiryTimeMS, delta = expireTimeGapMs) <= 0.0f
@@ -104,11 +88,5 @@ class MemberRepository(
      * */
     private fun getExpiryTimeBasedOnPER(remainingExpiryTimeMS: Long, delta: Long, beta: Float = 1.0f): Double {
         return remainingExpiryTimeMS - abs(delta * beta * ln(Math.random()))
-    }
-
-    private fun getNodeByRandomGenerator(): Int {
-        val minNodeCount = 1
-        val maxNodeCount = 2
-        return ((minNodeCount..maxNodeCount).random()).minus(1)
     }
 }
