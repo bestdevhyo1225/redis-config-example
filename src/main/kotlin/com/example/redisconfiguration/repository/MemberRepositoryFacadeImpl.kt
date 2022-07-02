@@ -19,6 +19,7 @@ class MemberRepositoryFacadeImpl(
     private val redisServerCount: Int,
     private val memberRedisServer1Repository: MemberRedisServer1Repository,
     private val memberRedisServer2Repository: MemberRedisServer2Repository,
+    private val memberRedisServer3Repository: MemberRedisServer3Repository,
 ) : MemberFacadeRepository {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -35,6 +36,10 @@ class MemberRepositoryFacadeImpl(
             launch(context = Dispatchers.IO) {
                 logger.info("set member cache in redis server-2")
                 setMemberCacheInRedisServer2(key = key, value = value)
+            }
+            launch(context = Dispatchers.IO) {
+                logger.info("set member cache in redis server-3")
+                setMemberCacheInRedisServer3(key = key, value = value)
             }
         }
     }
@@ -69,6 +74,21 @@ class MemberRepositoryFacadeImpl(
         }
     }
 
+    suspend fun setMemberCacheInRedisServer3(key: String, value: Member) {
+        try {
+            memberRedisServer3Repository.set(
+                key = key,
+                value = value,
+                expireTime = RedisExpireTime.MEMBER,
+                timeUnit = TimeUnit.SECONDS
+            )
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+        }
+    }
+
     override fun setMembersCache(values: List<Member>) {
         val keysAndValues = values.map {
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
@@ -82,6 +102,10 @@ class MemberRepositoryFacadeImpl(
             launch(context = Dispatchers.IO) {
                 logger.info("set members cache in redis server-2")
                 setMembersCacheInRedisServer2(keysAndValues = keysAndValues)
+            }
+            launch(context = Dispatchers.IO) {
+                logger.info("set members cache in redis server-3")
+                setMembersCacheInRedisServer3(keysAndValues = keysAndValues)
             }
         }
     }
@@ -114,6 +138,20 @@ class MemberRepositoryFacadeImpl(
         }
     }
 
+    suspend fun setMembersCacheInRedisServer3(keysAndValues: List<Pair<String, Member>>) {
+        try {
+            memberRedisServer3Repository.setUsingPipeline(
+                keysAndValues = keysAndValues,
+                expireTime = RedisExpireTime.MEMBER,
+                timeUnit = TimeUnit.SECONDS
+            )
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+        }
+    }
+
     override fun getMemberCache(id: Long): Member? {
         val key = RedisKey.getMemberKey(id = id)
         val nodeIndex = getNodeIndex()
@@ -124,6 +162,7 @@ class MemberRepositoryFacadeImpl(
             when (nodeIndex) {
                 0 -> memberRedisServer1Repository.get(key = key, clazz = Member::class.java)
                 1 -> memberRedisServer2Repository.get(key = key, clazz = Member::class.java)
+                2 -> memberRedisServer3Repository.get(key = key, clazz = Member::class.java)
                 else -> throw RuntimeException("해당 노드 인덱스의 RedisTemplate를 추가하세요. (nodeIndex: $nodeIndex")
             }
         } catch (exception: RedisConnectionFailureException) {
@@ -145,6 +184,7 @@ class MemberRepositoryFacadeImpl(
             when (nodeIndex) {
                 0 -> memberRedisServer1Repository.getUsingPipeline(keys = keys, clazz = Member::class.java)
                 1 -> memberRedisServer2Repository.getUsingPipeline(keys = keys, clazz = Member::class.java)
+                2 -> memberRedisServer3Repository.getUsingPipeline(keys = keys, clazz = Member::class.java)
                 else -> throw RuntimeException("해당 노드 인덱스의 RedisTemplate를 추가하세요. (nodeIndex: $nodeIndex")
             }
         } catch (exception: RedisConnectionFailureException) {
