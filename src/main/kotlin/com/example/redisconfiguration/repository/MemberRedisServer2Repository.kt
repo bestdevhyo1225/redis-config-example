@@ -14,19 +14,19 @@ import kotlin.math.abs
 import kotlin.math.ln
 
 @Repository
-class MemberRepository(
-    @Qualifier(value = "redisServer1Template")
-    private val redisServer1Template: RedisTemplate<String, String?>,
+class MemberRedisServer2Repository(
+    @Qualifier(value = "redisServer2Template")
+    private val redisServer2Template: RedisTemplate<String, String?>,
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
-        redisServer1Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
+        redisServer2Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
     }
 
     fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
-        redisServer1Template.executePipelined {
+        redisServer2Template.executePipelined {
             keysAndValues.forEach { keyAndValue ->
                 set(key = keyAndValue.first, value = keyAndValue.second, expireTime = expireTime, timeUnit = timeUnit)
             }
@@ -40,7 +40,7 @@ class MemberRepository(
             return null
         }
 
-        val value = redisServer1Template.opsForValue().get(key)
+        val value = redisServer2Template.opsForValue().get(key)
 
         if (value.isNullOrBlank()) {
             logger.info("value is null or blank")
@@ -53,7 +53,7 @@ class MemberRepository(
     fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
         val results = mutableListOf<T?>()
 
-        redisServer1Template.executePipelined {
+        redisServer2Template.executePipelined {
             runBlocking {
                 results.addAll(
                     keys.map { key ->
@@ -70,8 +70,7 @@ class MemberRepository(
     suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
-        val remainingExpiryTimeMS = redisServer1Template.getExpire(key, TimeUnit.MILLISECONDS)
-
+        val remainingExpiryTimeMS = redisServer2Template.getExpire(key, TimeUnit.MILLISECONDS)
         return remainingExpiryTimeMS >= 0
             && getExpiryTimeBasedOnPER(remainingExpiryTimeMS = remainingExpiryTimeMS, delta = expireTimeGapMs) <= 0.0f
     }
