@@ -1,9 +1,11 @@
 package com.example.redisconfiguration.config
 
+import com.example.redisconfiguration.config.property.RedisServers
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.ReadFrom.REPLICA_PREFERRED
 import io.lettuce.core.TimeoutOptions
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,14 +18,14 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import java.time.Duration
 
 @Configuration
-@EnableCaching(proxyTargetClass = true)
 @Profile(value = ["redis-standalone"])
+@EnableConfigurationProperties(value = [RedisServers::class])
+@EnableCaching(proxyTargetClass = true)
 class RedisConfig(
     @Value("\${spring.data.redis.mode}")
     private val mode: String,
 
-    @Value("\${spring.data.redis.nodes}")
-    private val nodes: List<String>,
+    private val redisServers: RedisServers,
 
     @Value("\${spring.data.redis.command-timeout}")
     private val commandTimeout: Long,
@@ -35,8 +37,8 @@ class RedisConfig(
     @Primary
     @Bean(name = ["redisServer1ConnectionFactory"])
     fun redisServer1ConnectionFactory(): RedisConnectionFactory {
-        if (mode == "standalone") {
-            val splitNodes = nodes.first().split(":")
+        if (mode == RedisMode.STANDALONE) {
+            val splitNodes = redisServers.nodes[RedisNodesKey.SERVER_1]!!.first().split(":")
             return LettuceConnectionFactory(
                 standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt()),
                 lettuceClientConfig()
@@ -48,8 +50,8 @@ class RedisConfig(
 
     @Bean(name = ["redisServer2ConnectionFactory"])
     fun redisServer2ConnectionFactory(): RedisConnectionFactory {
-        if (mode == "standalone") {
-            val splitNodes = nodes[1].split(":")
+        if (mode == RedisMode.STANDALONE) {
+            val splitNodes = redisServers.nodes[RedisNodesKey.SERVER_2]!!.first().split(":")
             return LettuceConnectionFactory(
                 standaloneConfig(host = splitNodes[0], port = splitNodes[1].toInt()),
                 lettuceClientConfig()

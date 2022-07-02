@@ -39,6 +39,8 @@ dependencies {
 	}
 	testImplementation("com.google.guava:guava:31.1-jre")
 	testImplementation("commons-io:commons-io:2.11.0")
+
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 tasks.withType<KotlinCompile> {
