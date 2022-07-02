@@ -21,6 +21,7 @@ spring:
       nodes:
         server-1: localhost:6379,
         server-2: localhost:6380,
+        server-3: localhost:6381,
       command-timeout: 1000 # 1000ms
       shutdown-timeout: 100 # 100ms
 
