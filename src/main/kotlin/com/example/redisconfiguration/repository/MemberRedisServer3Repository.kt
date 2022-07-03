@@ -27,7 +27,7 @@ class MemberRedisServer3Repository(
 
     fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
         redisServer3Template.executePipelined {
-            keysAndValues.forEach { keyAndValue ->
+            keysAndValues.forEach { keyAndValue: Pair<String, T> ->
                 set(key = keyAndValue.first, value = keyAndValue.second, expireTime = expireTime, timeUnit = timeUnit)
             }
             return@executePipelined null
@@ -56,7 +56,7 @@ class MemberRedisServer3Repository(
         redisServer3Template.executePipelined {
             runBlocking {
                 results.addAll(
-                    keys.map { key ->
+                    keys.map { key: String ->
                         async(context = Dispatchers.IO) { getUsingCoroutine(key = key, clazz = clazz) }
                     }.awaitAll()
                 )
