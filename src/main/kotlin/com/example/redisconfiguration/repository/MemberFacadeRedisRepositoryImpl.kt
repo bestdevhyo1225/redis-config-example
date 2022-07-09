@@ -3,6 +3,7 @@ package com.example.redisconfiguration.repository
 import com.example.redisconfiguration.config.RedisExpireTime
 import com.example.redisconfiguration.config.RedisKey
 import com.example.redisconfiguration.domain.Member
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,26 +27,17 @@ class MemberFacadeRedisRepositoryImpl(
     private val minRedisServerCount = 1
 
     override fun setMemberCache(value: Member) {
-        val key = RedisKey.getMemberKey(id = value.id)
-
-        runBlocking {
-            launch(context = Dispatchers.IO) {
-                logger.info("set member cache in redis server-1")
-                setMemberCacheInRedisServer1(key = key, value = value)
-            }
-            launch(context = Dispatchers.IO) {
-                logger.info("set member cache in redis server-2")
-                setMemberCacheInRedisServer2(key = key, value = value)
-            }
-            launch(context = Dispatchers.IO) {
-                logger.info("set member cache in redis server-3")
-                setMemberCacheInRedisServer3(key = key, value = value)
-            }
+        CoroutineScope(context = Dispatchers.IO).launch {
+            val key = RedisKey.getMemberKey(id = value.id)
+            setMemberCacheInRedisServer1(key = key, value = value)
+            setMemberCacheInRedisServer2(key = key, value = value)
+            setMemberCacheInRedisServer3(key = key, value = value)
         }
     }
 
     suspend fun setMemberCacheInRedisServer1(key: String, value: Member) {
         try {
+            logger.info("set member cache in redis server-1")
             memberRedisServer1Repository.set(
                 key = key,
                 value = value,
@@ -61,6 +53,7 @@ class MemberFacadeRedisRepositoryImpl(
 
     suspend fun setMemberCacheInRedisServer2(key: String, value: Member) {
         try {
+            logger.info("set member cache in redis server-2")
             memberRedisServer2Repository.set(
                 key = key,
                 value = value,
@@ -76,6 +69,7 @@ class MemberFacadeRedisRepositoryImpl(
 
     suspend fun setMemberCacheInRedisServer3(key: String, value: Member) {
         try {
+            logger.info("set member cache in redis server-3")
             memberRedisServer3Repository.set(
                 key = key,
                 value = value,
