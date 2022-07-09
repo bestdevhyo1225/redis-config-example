@@ -192,8 +192,5 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    private fun getNodeIndex(): Int {
-        logger.info("redisServerCount: {}", redisServerCount)
-        return ((minRedisServerCount..redisServerCount).random()).minus(1)
-    }
+    private fun getNodeIndex(): Int = ((minRedisServerCount..redisServerCount).random()).minus(1)
 }
