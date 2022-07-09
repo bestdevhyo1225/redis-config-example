@@ -88,24 +88,20 @@ class MemberFacadeRedisRepositoryImpl(
             Pair(first = RedisKey.getMemberKey(id = it.id), second = Member.create(id = it.id, name = it.name))
         }
 
-        runBlocking {
-            launch(context = Dispatchers.IO) {
-                logger.info("set members cache in redis server-1")
-                setMembersCacheInRedisServer1(keysAndValues = keysAndValues)
-            }
-            launch(context = Dispatchers.IO) {
-                logger.info("set members cache in redis server-2")
-                setMembersCacheInRedisServer2(keysAndValues = keysAndValues)
-            }
-            launch(context = Dispatchers.IO) {
-                logger.info("set members cache in redis server-3")
-                setMembersCacheInRedisServer3(keysAndValues = keysAndValues)
-            }
+        logger.info("CoroutineScope.launch() start")
+
+        CoroutineScope(context = Dispatchers.IO).launch {
+            setMembersCacheInRedisServer1(keysAndValues = keysAndValues)
+            setMembersCacheInRedisServer2(keysAndValues = keysAndValues)
+            setMembersCacheInRedisServer3(keysAndValues = keysAndValues)
         }
+
+        logger.info("CoroutineScope.launch() end")
     }
 
     suspend fun setMembersCacheInRedisServer1(keysAndValues: List<Pair<String, Member>>) {
         try {
+            logger.info("set members cache in redis server-1")
             memberRedisServer1Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
@@ -120,6 +116,7 @@ class MemberFacadeRedisRepositoryImpl(
 
     suspend fun setMembersCacheInRedisServer2(keysAndValues: List<Pair<String, Member>>) {
         try {
+            logger.info("set members cache in redis server-2")
             memberRedisServer2Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
@@ -134,6 +131,7 @@ class MemberFacadeRedisRepositoryImpl(
 
     suspend fun setMembersCacheInRedisServer3(keysAndValues: List<Pair<String, Member>>) {
         try {
+            logger.info("set members cache in redis server-3")
             memberRedisServer3Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
