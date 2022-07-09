@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.redis.core.RedisTemplate
@@ -51,11 +52,11 @@ class MemberRedisServer2Repository(
     }
 
     fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
-        val results = mutableListOf<T?>()
+        val values = mutableListOf<T?>()
 
         redisServer2Template.executePipelined {
             runBlocking {
-                results.addAll(
+                values.addAll(
                     keys.map { key: String ->
                         async(context = Dispatchers.IO) { getUsingCoroutine(key = key, clazz = clazz) }
                     }.awaitAll()
@@ -64,7 +65,7 @@ class MemberRedisServer2Repository(
             return@executePipelined null
         }
 
-        return results
+        return values
     }
 
     suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)

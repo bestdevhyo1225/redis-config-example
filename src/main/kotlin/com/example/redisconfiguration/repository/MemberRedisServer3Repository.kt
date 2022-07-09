@@ -51,11 +51,11 @@ class MemberRedisServer3Repository(
     }
 
     fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
-        val results = mutableListOf<T?>()
+        val values = mutableListOf<T?>()
 
         redisServer3Template.executePipelined {
             runBlocking {
-                results.addAll(
+                values.addAll(
                     keys.map { key: String ->
                         async(context = Dispatchers.IO) { getUsingCoroutine(key = key, clazz = clazz) }
                     }.awaitAll()
@@ -64,7 +64,7 @@ class MemberRedisServer3Repository(
             return@executePipelined null
         }
 
-        return results
+        return values
     }
 
     suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
