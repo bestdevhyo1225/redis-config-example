@@ -28,11 +28,16 @@ class MemberFacadeRedisRepositoryImpl(
 
     override fun setMemberCache(value: Member) {
         val key = RedisKey.getMemberKey(id = value.id)
+
+        logger.info("CoroutineScope.launch() start")
+
         CoroutineScope(context = Dispatchers.IO).launch {
             setMemberCacheInRedisServer1(key = key, value = value)
             setMemberCacheInRedisServer2(key = key, value = value)
             setMemberCacheInRedisServer3(key = key, value = value)
         }
+
+        logger.info("CoroutineScope.launch() end")
     }
 
     suspend fun setMemberCacheInRedisServer1(key: String, value: Member) {
