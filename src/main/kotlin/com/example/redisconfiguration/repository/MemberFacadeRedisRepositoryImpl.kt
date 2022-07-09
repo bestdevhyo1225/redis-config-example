@@ -27,8 +27,8 @@ class MemberFacadeRedisRepositoryImpl(
     private val minRedisServerCount = 1
 
     override fun setMemberCache(value: Member) {
+        val key = RedisKey.getMemberKey(id = value.id)
         CoroutineScope(context = Dispatchers.IO).launch {
-            val key = RedisKey.getMemberKey(id = value.id)
             setMemberCacheInRedisServer1(key = key, value = value)
             setMemberCacheInRedisServer2(key = key, value = value)
             setMemberCacheInRedisServer3(key = key, value = value)
