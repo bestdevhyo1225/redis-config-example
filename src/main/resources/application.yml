@@ -25,9 +25,9 @@ spring:
       command-timeout: 1000 # 1000ms
       shutdown-timeout: 100 # 100ms
 
-logging:
-  level:
-    io.lettuce.core: debug
+#logging:
+#  level:
+#    io.lettuce.core: debug
 
 ---
 spring:
