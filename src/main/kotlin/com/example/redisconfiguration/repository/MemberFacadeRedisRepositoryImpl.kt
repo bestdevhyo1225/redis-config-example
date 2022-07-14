@@ -39,7 +39,7 @@ class MemberFacadeRedisRepositoryImpl(
         logger.info("CoroutineScope.launch() end")
     }
 
-    fun setMemberCacheInRedisServer1(key: String, value: Member) {
+    suspend fun setMemberCacheInRedisServer1(key: String, value: Member) {
         try {
             logger.info("set member cache in redis server-1")
             memberRedisServer1Repository.set(
@@ -55,7 +55,7 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    fun setMemberCacheInRedisServer2(key: String, value: Member) {
+    suspend fun setMemberCacheInRedisServer2(key: String, value: Member) {
         try {
             logger.info("set member cache in redis server-2")
             memberRedisServer2Repository.set(
@@ -71,7 +71,7 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    fun setMemberCacheInRedisServer3(key: String, value: Member) {
+    suspend fun setMemberCacheInRedisServer3(key: String, value: Member) {
         try {
             logger.info("set member cache in redis server-3")
             memberRedisServer3Repository.set(
