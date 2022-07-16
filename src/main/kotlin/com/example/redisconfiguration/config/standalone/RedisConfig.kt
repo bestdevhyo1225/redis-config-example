@@ -70,9 +70,6 @@ class RedisConfig(
         throw IllegalArgumentException("'$mode'는 존재하지 않는 모드입니다.")
     }
 
-    @Bean(name = ["redisServerCount"])
-    fun redisServerCount(): Int = redisServers.nodes.size
-
     private fun standaloneConfig(host: String, port: Int): RedisStandaloneConfiguration {
         return RedisStandaloneConfiguration(host, port)
     }

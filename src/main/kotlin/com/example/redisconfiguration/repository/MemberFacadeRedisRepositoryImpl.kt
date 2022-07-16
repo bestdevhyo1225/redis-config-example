@@ -2,12 +2,12 @@ package com.example.redisconfiguration.repository
 
 import com.example.redisconfiguration.config.RedisExpireTime
 import com.example.redisconfiguration.config.RedisKey
+import com.example.redisconfiguration.config.property.RedisServers
 import com.example.redisconfiguration.domain.Member
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.dao.QueryTimeoutException
 import org.springframework.data.redis.RedisConnectionFailureException
 import org.springframework.stereotype.Repository
@@ -15,8 +15,7 @@ import java.util.concurrent.TimeUnit
 
 @Repository
 class MemberFacadeRedisRepositoryImpl(
-    @Qualifier(value = "redisServerCount")
-    private val redisServerCount: Int,
+    private val redisServers: RedisServers,
     private val memberRedisServer1Repository: MemberRedisServer1Repository,
     private val memberRedisServer2Repository: MemberRedisServer2Repository,
     private val memberRedisServer3Repository: MemberRedisServer3Repository,
@@ -192,5 +191,5 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    private fun getNodeIndex(): Int = ((minRedisServerCount..redisServerCount).random()).minus(1)
+    private fun getNodeIndex(): Int = ((minRedisServerCount..redisServers.nodes.size).random()).minus(1)
 }
