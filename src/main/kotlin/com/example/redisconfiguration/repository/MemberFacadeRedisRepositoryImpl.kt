@@ -38,8 +38,8 @@ class MemberFacadeRedisRepositoryImpl(
         logger.info("CoroutineScope.launch() end")
     }
 
-    suspend fun setMemberCacheInRedisServer1(key: String, value: Member) {
-        try {
+    private suspend fun setMemberCacheInRedisServer1(key: String, value: Member) {
+        setWith {
             logger.info("set member cache in redis server-1")
             memberRedisServer1Repository.set(
                 key = key,
@@ -47,15 +47,11 @@ class MemberFacadeRedisRepositoryImpl(
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
-    suspend fun setMemberCacheInRedisServer2(key: String, value: Member) {
-        try {
+    private suspend fun setMemberCacheInRedisServer2(key: String, value: Member) {
+        setWith {
             logger.info("set member cache in redis server-2")
             memberRedisServer2Repository.set(
                 key = key,
@@ -63,15 +59,11 @@ class MemberFacadeRedisRepositoryImpl(
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
-    suspend fun setMemberCacheInRedisServer3(key: String, value: Member) {
-        try {
+    private suspend fun setMemberCacheInRedisServer3(key: String, value: Member) {
+        setWith {
             logger.info("set member cache in redis server-3")
             memberRedisServer3Repository.set(
                 key = key,
@@ -79,10 +71,6 @@ class MemberFacadeRedisRepositoryImpl(
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
@@ -102,7 +90,7 @@ class MemberFacadeRedisRepositoryImpl(
         logger.info("CoroutineScope.launch() end")
     }
 
-    suspend fun setMembersCacheInRedisServer1(keysAndValues: List<Pair<String, Member>>) {
+    private suspend fun setMembersCacheInRedisServer1(keysAndValues: List<Pair<String, Member>>) {
         try {
             logger.info("set members cache in redis server-1")
             memberRedisServer1Repository.setUsingPipeline(
@@ -117,7 +105,7 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    suspend fun setMembersCacheInRedisServer2(keysAndValues: List<Pair<String, Member>>) {
+    private suspend fun setMembersCacheInRedisServer2(keysAndValues: List<Pair<String, Member>>) {
         try {
             logger.info("set members cache in redis server-2")
             memberRedisServer2Repository.setUsingPipeline(
@@ -132,7 +120,7 @@ class MemberFacadeRedisRepositoryImpl(
         }
     }
 
-    suspend fun setMembersCacheInRedisServer3(keysAndValues: List<Pair<String, Member>>) {
+    private suspend fun setMembersCacheInRedisServer3(keysAndValues: List<Pair<String, Member>>) {
         try {
             logger.info("set members cache in redis server-3")
             memberRedisServer3Repository.setUsingPipeline(
@@ -140,6 +128,16 @@ class MemberFacadeRedisRepositoryImpl(
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
+        } catch (exception: RedisConnectionFailureException) {
+            logger.error("exception", exception)
+        } catch (exception: QueryTimeoutException) {
+            logger.error("exception", exception)
+        }
+    }
+
+    private suspend fun setWith(callback: () -> Unit) {
+        try {
+            callback()
         } catch (exception: RedisConnectionFailureException) {
             logger.error("exception", exception)
         } catch (exception: QueryTimeoutException) {
