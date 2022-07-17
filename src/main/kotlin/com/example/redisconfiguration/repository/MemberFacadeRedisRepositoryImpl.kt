@@ -91,47 +91,35 @@ class MemberFacadeRedisRepositoryImpl(
     }
 
     private suspend fun setMembersCacheInRedisServer1(keysAndValues: List<Pair<String, Member>>) {
-        try {
+        setWith {
             logger.info("set members cache in redis server-1")
             memberRedisServer1Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
     private suspend fun setMembersCacheInRedisServer2(keysAndValues: List<Pair<String, Member>>) {
-        try {
+        setWith {
             logger.info("set members cache in redis server-2")
             memberRedisServer2Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
     private suspend fun setMembersCacheInRedisServer3(keysAndValues: List<Pair<String, Member>>) {
-        try {
+        setWith {
             logger.info("set members cache in redis server-3")
             memberRedisServer3Repository.setUsingPipeline(
                 keysAndValues = keysAndValues,
                 expireTime = RedisExpireTime.MEMBER,
                 timeUnit = TimeUnit.SECONDS
             )
-        } catch (exception: RedisConnectionFailureException) {
-            logger.error("exception", exception)
-        } catch (exception: QueryTimeoutException) {
-            logger.error("exception", exception)
         }
     }
 
