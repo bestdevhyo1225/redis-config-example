@@ -65,7 +65,7 @@ class MemberRedisServer3Repository(
         return values
     }
 
-    suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
+    private suspend fun <T> getUsingCoroutine(key: String, clazz: Class<T>): T? = get(key = key, clazz = clazz)
 
     private fun shouldRefreshKey(key: String, expireTimeGapMs: Long = 3_000L): Boolean {
         val remainingExpiryTimeMS = redisServer3Template.getExpire(key, TimeUnit.MILLISECONDS)
