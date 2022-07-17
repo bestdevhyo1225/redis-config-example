@@ -3,7 +3,7 @@ package com.example.redisconfiguration.service
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -12,7 +12,7 @@ class ApiService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun call() = runBlocking(context = Dispatchers.IO) {
+    suspend fun call() = withContext(context = Dispatchers.IO) {
         logger.info("call()")
 
         val startTime = System.currentTimeMillis()

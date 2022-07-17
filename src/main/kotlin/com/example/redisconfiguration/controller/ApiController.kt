@@ -2,6 +2,7 @@ package com.example.redisconfiguration.controller
 
 import com.example.redisconfiguration.controller.response.SuccessResponse
 import com.example.redisconfiguration.service.ApiService
+import kotlinx.coroutines.runBlocking
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -14,8 +15,8 @@ class ApiController(
 ) {
 
     @GetMapping
-    fun call(): ResponseEntity<SuccessResponse<Map<String, Any>>> {
+    fun call(): ResponseEntity<SuccessResponse<Map<String, Any>>> = runBlocking {
         apiService.call()
-        return ResponseEntity.ok(SuccessResponse(data = mapOf()))
+        ResponseEntity.ok(SuccessResponse(data = mapOf()))
     }
 }
