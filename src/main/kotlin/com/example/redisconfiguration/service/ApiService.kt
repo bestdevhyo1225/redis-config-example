@@ -1,11 +1,10 @@
 package com.example.redisconfiguration.service
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -15,11 +14,13 @@ class ApiService {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun call() = runBlocking {
+        logger.info("call()")
+
+        val startTime = System.currentTimeMillis()
+
         val deferredMember = async(context = Dispatchers.IO) { callMemberApi() }
         val deferredProduct = async(context = Dispatchers.IO) { callProductApi() }
         val deferredOrder = async(context = Dispatchers.IO) { callOrderApi() }
-
-        val startTime = System.currentTimeMillis()
 
         deferredMember.await()
         deferredProduct.await()
@@ -31,17 +32,20 @@ class ApiService {
     }
 
     suspend fun callMemberApi() {
-        delay(timeMillis = 152)
-        logger.info("callMemberApi() after 152ms")
+        val timeMillis: Long = 152
+        delay(timeMillis = timeMillis)
+        logger.info("callMemberApi() after ${timeMillis}ms")
     }
 
     suspend fun callProductApi() {
-        delay(timeMillis = 178)
-        logger.info("callProductApi() after 178ms")
+        val timeMillis: Long = 215
+        delay(timeMillis = timeMillis)
+        logger.info("callProductApi() after ${timeMillis}ms")
     }
 
     suspend fun callOrderApi() {
-        delay(timeMillis = 283)
-        logger.info("callOrderApi() after 283ms")
+        val timeMillis: Long = 283
+        delay(timeMillis = timeMillis)
+        logger.info("callOrderApi() after ${timeMillis}ms")
     }
 }
