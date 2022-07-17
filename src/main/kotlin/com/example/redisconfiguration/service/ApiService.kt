@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -13,7 +12,7 @@ class ApiService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun call() = withContext(context = Dispatchers.IO) {
+    fun call() = runBlocking(context = Dispatchers.IO) {
         logger.info("call()")
 
         val startTime = System.currentTimeMillis()
@@ -33,21 +32,21 @@ class ApiService {
 
     suspend fun callMemberApi() {
         logger.info("callMemberApi()")
-        val timeMillis: Long = 152
+        val timeMillis: Long = 100
         delay(timeMillis = timeMillis)
         logger.info("callMemberApi() after ${timeMillis}ms")
     }
 
     suspend fun callProductApi() {
         logger.info("callProductApi()")
-        val timeMillis: Long = 215
+        val timeMillis: Long = 100
         delay(timeMillis = timeMillis)
         logger.info("callProductApi() after ${timeMillis}ms")
     }
 
     suspend fun callOrderApi() {
         logger.info("callOrderApi()")
-        val timeMillis: Long = 283
+        val timeMillis: Long = 100
         delay(timeMillis = timeMillis)
         logger.info("callOrderApi() after ${timeMillis}ms")
     }
