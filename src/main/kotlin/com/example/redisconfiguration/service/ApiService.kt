@@ -1,5 +1,6 @@
 package com.example.redisconfiguration.service
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -12,14 +13,14 @@ class ApiService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun call() = withContext(context = Dispatchers.IO) {
+    suspend fun call() {
         logger.info("call()")
 
         val startTime = System.currentTimeMillis()
 
-        val deferredMember = async { callMemberApi() }
-        val deferredProduct = async { callProductApi() }
-        val deferredOrder = async { callOrderApi() }
+        val deferredMember = CoroutineScope(context = Dispatchers.IO).async { callMemberApi() }
+        val deferredProduct = CoroutineScope(context = Dispatchers.IO).async { callProductApi() }
+        val deferredOrder = CoroutineScope(context = Dispatchers.IO).async { callOrderApi() }
 
         deferredMember.await()
         deferredProduct.await()
