@@ -15,15 +15,15 @@ import java.util.concurrent.TimeUnit
 class MemberRedisServer1Repository(
     @Qualifier(value = "redisServer1Template")
     private val redisServer1Template: RedisTemplate<String, String?>,
-) : AbstractRedisServerRepository() {
+) : MemberRedisServerRepository, AbstractRedisServerRepository() {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
+    override fun <T : Any> set(key: String, value: T, expireTime: Long, timeUnit: TimeUnit) {
         redisServer1Template.opsForValue().set(key, jacksonObjectMapper().writeValueAsString(value), expireTime, timeUnit)
     }
 
-    fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
+    override fun <T : Any> setUsingPipeline(keysAndValues: List<Pair<String, T>>, expireTime: Long, timeUnit: TimeUnit) {
         redisServer1Template.executePipelined {
             keysAndValues.forEach { keyAndValue: Pair<String, T> ->
                 set(key = keyAndValue.first, value = keyAndValue.second, expireTime = expireTime, timeUnit = timeUnit)
@@ -32,7 +32,7 @@ class MemberRedisServer1Repository(
         }
     }
 
-    fun <T> get(key: String, clazz: Class<T>): T? {
+    override fun <T> get(key: String, clazz: Class<T>): T? {
         if (shouldRefreshKey(key = key)) {
             logger.info("current key is need refresh")
             return null
@@ -48,7 +48,7 @@ class MemberRedisServer1Repository(
         return jacksonObjectMapper().readValue(value, clazz)
     }
 
-    fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
+    override fun <T> getUsingPipeline(keys: List<String>, clazz: Class<T>): List<T?> {
         val values = mutableListOf<T?>()
 
         redisServer1Template.executePipelined {
