@@ -13,7 +13,7 @@ class ApiController(
     private val apiService: ApiService
 ) {
 
-    @GetMapping("")
+    @GetMapping
     fun call(): ResponseEntity<SuccessResponse<Map<String, Any>>> {
         apiService.call()
         return ResponseEntity.ok(SuccessResponse(data = mapOf()))
