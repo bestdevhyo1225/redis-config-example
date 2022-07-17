@@ -2,6 +2,7 @@ package com.example.redisconfiguration.repository
 
 import com.example.redisconfiguration.config.RedisExpireTime
 import com.example.redisconfiguration.config.RedisKey
+import com.example.redisconfiguration.config.property.RedisServers
 import com.example.redisconfiguration.domain.Member
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
@@ -14,12 +15,12 @@ import java.util.concurrent.TimeUnit
 
 internal class MemberFacadeRepositoryTests : DescribeSpec({
 
-    val mockRedisServerCount = 3
+    val mockRedisServers = mockk<RedisServers>()
     val mockMemberRedisServer1Repository = mockk<MemberRedisServer1Repository>()
     val mockMemberRedisServer2Repository = mockk<MemberRedisServer2Repository>()
     val mockMemberRedisServer3Repository = mockk<MemberRedisServer3Repository>()
     val memberFacadeRedisRepositoryImpl = MemberFacadeRedisRepositoryImpl(
-        redisServerCount = mockRedisServerCount,
+        redisServers = mockRedisServers,
         memberRedisServer1Repository = mockMemberRedisServer1Repository,
         memberRedisServer2Repository = mockMemberRedisServer2Repository,
         memberRedisServer3Repository = mockMemberRedisServer3Repository,
