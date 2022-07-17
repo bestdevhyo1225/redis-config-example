@@ -16,7 +16,7 @@ class ApiController(
 
     @GetMapping
     fun call(): ResponseEntity<SuccessResponse<Map<String, Any>>> = runBlocking {
-        apiService.call()
-        ResponseEntity.ok(SuccessResponse(data = mapOf()))
+        val results: List<Long> = apiService.call()
+        ResponseEntity.ok(SuccessResponse(data = mapOf("results" to results)))
     }
 }

@@ -13,7 +13,7 @@ class ApiService {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun call() {
+    suspend fun call(): List<Long> {
         logger.info("call()")
 
         val startTime = System.currentTimeMillis()
@@ -29,6 +29,8 @@ class ApiService {
         val endTime = System.currentTimeMillis()
 
         logger.info("execution time: {}", (endTime - startTime))
+
+        return listOf()
     }
 
     suspend fun callMemberApi() {
