@@ -27,7 +27,7 @@ spring:
 
 #logging:
 #  level:
-#    io.lettuce.core: debug
+#    io.lettuce.core.protocol: debug
 
 ---
 spring:
